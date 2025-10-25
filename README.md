@@ -100,6 +100,7 @@ Mirqab/
 - **Fatimah Alsubaie** - Data Scientist  
   📧 fatima.t.alsubaie@gmail.com
 - **Abdulrahman Attar** - Data Analyst
+  📧 abdulrahman.att7@gmail.com
 - **Mousa Alatwei** - Data Scientist  
   📧 mousa.alatwei.1@gmail.com
 - **Abdulelah Alowaid** - Data Scientist  
