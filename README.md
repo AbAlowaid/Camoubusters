@@ -5,7 +5,6 @@ An AI-powered web application for real-time detection and analysis of camouflage
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ## ✨ Features
 
