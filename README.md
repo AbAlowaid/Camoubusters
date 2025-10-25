@@ -7,18 +7,6 @@ A full-stack AI-powered web application for real-time detection and segmentation
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-## 📋 Table of Contents
-
-- [Features](#-features)
-- [Project Structure](#-project-structure)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [RAG Evaluation System](#-rag-evaluation-system)
-- [API Endpoints](#-api-endpoints)
-- [Technologies](#-technologies)
-- [Troubleshooting](#-troubleshooting)
-
 ## ✨ Features
 
 ### 🔍 **Image Upload Analysis**
@@ -116,72 +104,6 @@ Camouflage_Project/
 - **Google Gemini API Key**: For AI analysis
 - **Firebase Project**: For database and storage
 - **PromptLayer API Key**: For RAG evaluation (optional)
-
-## 🚀 Installation
-
-### Step 1: Clone and Setup
-
-```powershell
-cd "C:\Users\dxgam\OneDrive\سطح المكتب\Camouflage_Project"
-```
-
-### Step 2: Move Model Files
-
-**IMPORTANT:** Move the following files to the `model_files/` directory:
-- `config.json`
-- `model.safetensors`
-- `preprocessor_config.json`
-
-```powershell
-# Create model_files directory
-New-Item -ItemType Directory -Force -Path ".\model_files"
-
-# Move the model files
-Move-Item -Path ".\config.json" -Destination ".\model_files\" -Force
-Move-Item -Path ".\model.safetensors" -Destination ".\model_files\" -Force
-Move-Item -Path ".\preprocessor_config.json" -Destination ".\model_files\" -Force
-```
-
-### Step 3: Backend Setup
-
-```powershell
-# Create and activate virtual environment
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up environment variables
-echo "GEMINI_API_KEY=your_gemini_api_key_here" > .env
-echo "PROMPTLAYER_API_KEY=pl_5a6ca0f6691aba14d471d2bbb45f9ace" >> .env
-echo "FIREBASE_CREDENTIALS_PATH=./mirqab-9de3f-firebase-adminsdk-fbsvc-c77d3822ec.json" >> .env
-
-# Start the backend server
-cd backend
-python main.py
-```
-
-The backend will run on `http://localhost:8000`
-
-### Step 4: Frontend Setup
-
-Open a new PowerShell terminal:
-
-```powershell
-cd "C:\Users\dxgam\OneDrive\سطح المكتب\Camouflage_Project\frontend"
-
-# Install dependencies
-npm install
-
-# Create environment file
-echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
-
-# Start development server
-npm run dev
-```
-
-The frontend will run on `http://localhost:3000`
 
 ## ▶️ Usage
 
@@ -380,87 +302,6 @@ GET /api/detection-stats?time_range=24h
 - **Google Gemini** 2.5 Flash - Vision-language model
 - **PromptLayer** - RAG evaluation and analytics
 
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-**❌ Error: Model files not found**
-```
-Solution: Ensure model_files/ contains config.json, model.safetensors, preprocessor_config.json
-```
-
-**❌ Error: Port 8000 already in use**
-```powershell
-# Find process using port 8000
-netstat -ano | findstr :8000
-
-# Kill the process (replace PID)
-taskkill /PID <PID> /F
-```
-
-**❌ Error: No module named 'transformers'**
-```powershell
-# Activate venv and reinstall
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-**❌ Error: Gemini API key not found**
-```
-Solution: Set GEMINI_API_KEY in .env file or environment variables
-```
-
-### Frontend Issues
-
-**❌ Error: Failed to fetch from API**
-```
-Solution: Verify backend is running on http://localhost:8000
-Check frontend/.env.local has: NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-**❌ Error: Images not displaying in report**
-```
-Solution: This is fixed with Blob URLs. Clear browser cache (Ctrl+Shift+Delete)
-```
-
-**❌ Error: Port 3000 already in use**
-```powershell
-# Kill Node process
-taskkill /F /IM node.exe
-```
-
-### RAG Evaluation Issues
-
-**❌ Error: PromptLayer not installed**
-```powershell
-pip install promptlayer
-```
-
-**❌ Error: No detection reports found**
-```
-Solution: Ensure Firebase is configured and has detection data
-```
-
-### Performance Issues
-
-**Slow detection (>5 seconds)**
-- CPU usage is normal (no GPU acceleration on Windows)
-- Expected: 1-2 seconds per image
-- For faster results: Use Google Colab with T4 GPU
-
-**Out of memory**
-- Close other applications
-- Restart backend server
-- Minimum 4GB RAM required
-
----
-
-## 📝 License
-
-MIT License - Free to use and modify
-
----
-
 ## 👥 Team
 
 **Data Science & Machine Learning Bootcamp at Tuwaiq Academy**
@@ -519,4 +360,4 @@ For detailed fixes and changes, see `REPORT_SYSTEM_FIX.md`
 
 ---
 
-**Status: ✅ Production Ready** | **Version: 2.0** | **Last Updated: January 2025**
+**Status: ✅ Production Ready** | **Version: 2.0** | **Last Updated: October 2025**
