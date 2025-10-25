@@ -112,7 +112,6 @@ This system benefits key defense organizations in Saudi Arabia:
 - **GAMI** (General Authority for Military Industries)  
 - **SAFCSP** (Saudi Federation for Cybersecurity, Programming and Drones)
 
-
 ---
 
 **Status: ✅ Production Ready** | **Version: 2.0** | **Last Updated: October 2025**
