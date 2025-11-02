@@ -1,4 +1,4 @@
-# 🎯 Mirqab - Advanced AI-Powered Camouflage Detection System
+# Mirqab - Advanced AI-Powered Camouflage Detection System
 
 A comprehensive AI-powered web application for real-time detection and analysis of camouflaged soldiers using DeepLabV3 deep learning model with automated reporting and intelligent querying capabilities.
 
@@ -8,21 +8,21 @@ A comprehensive AI-powered web application for real-time detection and analysis 
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)
 ![Firebase](https://img.shields.io/badge/Firebase-Admin-orange.svg)
 
-## ✨ Features
+## Features
 
-### 🔍 Detection & Analysis
+### Detection & Analysis
 - **Image Upload Analysis**: Upload images for automatic camouflage soldier detection
 - **Real-time Camera Detection**: Live webcam feed processing with automatic report generation
 - **DeepLabV3 Segmentation**: State-of-the-art semantic segmentation model
 - **GPU & CPU Support**: Optimized for both GPU acceleration and CPU processing
 
-### 🤖 AI-Powered Intelligence
+### AI-Powered Intelligence
 - **OpenAI GPT-4 Vision**: Automated detailed analysis of detections
 - **Smart Report Generation**: Automatic environment, attire, and equipment analysis
 - **Moraqib RAG System**: Natural language querying of historical detection reports
 - **Contextual Insights**: AI-powered answers based on your detection database
 
-### 📊 Detection Reports Dashboard
+### Detection Reports Dashboard
 - **SOC-Style Interface**: Professional security operations center dashboard
 - **Real-time Statistics**: Live detection counts and trends
 - **Interactive Charts**: Visual analytics with Chart.js
@@ -30,20 +30,20 @@ A comprehensive AI-powered web application for real-time detection and analysis 
 - **Status Management**: Track and update detection statuses
 - **Team Assignment**: Assign detections to team members
 
-### 📄 Report Management
+### Report Management
 - **PDF Export**: Professional PDF reports with images and metadata
 - **Firebase Storage**: Automatic cloud storage of detection images
 - **Location Tracking**: GPS/IP-based location detection
 - **Image Evidence**: Both original and segmented images stored
 - **Detailed Metadata**: Comprehensive detection information
 
-### 🌐 Real-time Features
+### Real-time Features
 - **Live Detection**: Continuous monitoring with automatic reporting
 - **2-Minute Cooldown**: Intelligent spam prevention for auto-reports
 - **Visual Countdown**: Real-time countdown to next report
 - **Multi-Device Support**: Track detections from multiple sources
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.9+
@@ -104,7 +104,7 @@ npm run dev
 ```
 Frontend will be available at `http://localhost:3000`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Mirqab/
@@ -143,7 +143,7 @@ Mirqab/
 └── README.md                        # This file
 ```
 
-## 🛠️ Technologies
+## Technologies
 
 ### Backend
 - **FastAPI**: High-performance async API framework
@@ -167,7 +167,7 @@ Mirqab/
 - **OpenAI Embeddings**: Vector embeddings for RAG
 - **FAISS**: Vector similarity search
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Detection & Analysis
 - `POST /api/analyze_media` - Analyze uploaded image/video
@@ -185,7 +185,7 @@ Mirqab/
 ### System
 - `GET /health` - Health check and system status
 
-## 🎯 Key Features Explained
+## Key Features Explained
 
 ### 1. Live Detection with Auto-Reporting
 Run `segmentation.py` or `realtime_camera_detection.py` for continuous monitoring:
@@ -218,7 +218,7 @@ Professional reports including:
 - Visual evidence (original and segmented images)
 - Mirqab branding
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -240,7 +240,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 3. Set up storage rules for public read access
 4. Download service account credentials
 
-## 🚦 Usage Examples
+## Usage Examples
 
 ### Upload Image Analysis
 1. Navigate to Upload page
@@ -263,26 +263,26 @@ python realtime_camera_detection.py
    - "Show me detections in forest environments"
    - "What equipment was most commonly detected?"
 
-## 👥 Development Team
+## Development Team
 
 **Data Science & Machine Learning Bootcamp - Tuwaiq Academy 2025**
 
 - **Saif Alotaibi** - Team Leader  
-  📧 cssaif.o@gmail.com
+  Email: cssaif.o@gmail.com
 
 - **Fatimah Alsubaie** - Data Scientist  
-  📧 fatima.t.alsubaie@gmail.com
+  Email: fatima.t.alsubaie@gmail.com
 
 - **Abdulrahman Attar** - Data Analyst  
-  📧 abdulrahman.att7@gmail.com
+  Email: abdulrahman.att7@gmail.com
 
 - **Mousa Alatewi** - Data Scientist  
-  📧 mousa.alatwei.1@gmail.com
+  Email: mousa.alatwei.1@gmail.com
 
 - **Abdulelah Alowaid** - Data Scientist  
-  📧 ab.alowaid@gmail.com
+  Email: ab.alowaid@gmail.com
 
-## 🏢 Project Beneficiaries
+## Project Beneficiaries
 
 This system is designed to benefit key defense and security organizations in Saudi Arabia:
 
@@ -290,15 +290,15 @@ This system is designed to benefit key defense and security organizations in Sau
 - **GAMI** - General Authority for Military Industries
 - **SAFCSP** - Saudi Federation for Cybersecurity, Programming and Drones
 
-## 📝 License
+## License
 
 This project is developed as part of the Data Science & ML Bootcamp at Tuwaiq Academy.
 
-## 🤝 Contributing
+## Contributing
 
 This is an educational project developed during the bootcamp. For questions or suggestions, please contact the development team.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Tuwaiq Academy for providing the learning platform
 - OpenAI for GPT-4 Vision API
@@ -307,6 +307,6 @@ This is an educational project developed during the bootcamp. For questions or s
 
 ---
 
-**Status: ✅ Production Ready** | **Version: 3.0** | **Last Updated: October 2025**
+**Status: Production Ready** | **Version: 3.0** | **Last Updated: November 2025**
 
-*Built with ❤️ by Team Mirqab at Tuwaiq Academy*
+Built by Team Mirqab at Tuwaiq Academy
