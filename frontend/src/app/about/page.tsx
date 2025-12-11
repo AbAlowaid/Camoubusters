@@ -4,7 +4,7 @@ export default function AboutPage() {
   const teamMembers = [
     {
       id: 1,
-      name: 'Saif Alotaibi',
+      name: 'Mohannad Alduwish',
       role: 'Team Leader',
       description: 'Leading the project development and team coordination',
       github: 'https://github.com',
@@ -13,7 +13,7 @@ export default function AboutPage() {
     },
     {
       id: 2,
-      name: 'Fatimah Alsubaie',
+      name: 'Basim Aldawood',
       role: 'Data Scientist',
       description: 'Specialized in machine learning and model development',
       github: 'https://github.com',
@@ -22,18 +22,18 @@ export default function AboutPage() {
     },
     {
       id: 3,
-      name: 'Abdulrahman Attar',
-      role: 'Data Analyst',
-      description: 'Focused on data analysis and insights extraction',
+      name: 'Nawaf Aljubir',
+      role: 'Data Scientist',
+      description: 'Specialized in data science and machine learning',
       github: 'https://github.com',
       linkedin: 'https://linkedin.com',
       twitter: 'https://twitter.com'
     },
     {
       id: 4,
-      name: 'Mousa Alotowi',
-      role: 'Data Scientist',
-      description: 'Specialized in data science and machine learning',
+      name: 'Bader Aljobairy',
+      role: 'Data Analyst',
+      description: 'Focused on data analysis and insights extraction',
       github: 'https://github.com',
       linkedin: 'https://linkedin.com',
       twitter: 'https://twitter.com'

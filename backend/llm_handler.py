@@ -1,6 +1,6 @@
 """
-LLM Handler - Interface with OpenAI GPT-4 Vision API
-Uses OpenAI for fast, accurate image analysis
+LLM Handler - Interface with Google Gemini 2.5 Flash API
+Uses Gemini for fast, accurate image analysis
 """
 
 import base64
@@ -14,47 +14,49 @@ from dotenv import load_dotenv
 # Load environment variables from project root
 root_dir = Path(__file__).parent.parent
 env_path = root_dir / '.env'
-load_dotenv(dotenv_path=env_path)  # ✅ NEW: Explicitly load from project root
+load_dotenv(dotenv_path=env_path)
 
-# Import OpenAI
+# Import Google Generative AI
 try:
-    from openai import OpenAI  # ✅ NEW: Import client class
-    OPENAI_AVAILABLE = True
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
 except ImportError:
-    OPENAI_AVAILABLE = False
-    print("⚠️ OpenAI not installed. Install with: pip install openai")
+    GEMINI_AVAILABLE = False
+    print("⚠️ Google Generative AI not installed. Install with: pip install google-generativeai")
 
 class LLMReportGenerator:
     def __init__(self, api_key: str = None):
         """
-        Initialize the LLM report generator with OpenAI GPT-4 Vision API
+        Initialize the LLM report generator with Google Gemini 2.5 Flash API
         
         Args:
-            api_key: OpenAI API key (defaults to OPENAI_API_KEY env variable)
+            api_key: Google API key (defaults to provided key or GEMINI_API_KEY env variable)
         """
-        if not OPENAI_AVAILABLE:
-            print("⚠️ Warning: OpenAI SDK not installed. Install with: pip install openai")
+        if not GEMINI_AVAILABLE:
+            print("⚠️ Warning: Google Generative AI SDK not installed. Install with: pip install google-generativeai")
             self.api_key = None
             self.model_name = None
-            self.client = None
+            self.model = None
             return
         
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        # Use the provided API key
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or "AIzaSyCnAKAPl3f40biAtHfJ57NFywqa5NHZgN4"
+        
         if not self.api_key:
-            print("⚠️ Warning: No OpenAI API key found. Set OPENAI_API_KEY environment variable.")
-            print(f"   Checked: {env_path}")
+            print("⚠️ Warning: No Gemini API key found.")
         else:
-            print(f"✅ OpenAI API key loaded successfully")
+            print(f"✅ Gemini API key loaded successfully")
         
         if self.api_key:
-            self.client = OpenAI(api_key=self.api_key)  # ✅ NEW: Create client instance
+            genai.configure(api_key=self.api_key)
+            self.model = genai.GenerativeModel('gemini-2.5-flash')
         else:
-            self.client = None
-        self.model_name = "gpt-4-turbo"  # ✅ GPT-4 Turbo supports vision (image analysis)
+            self.model = None
+        self.model_name = "gemini-2.5-flash"
     
     async def generate_report(self, image: Image.Image) -> dict:
         """
-        Generate AI analysis report for an image using OpenAI GPT-4 Vision
+        Generate AI analysis report for an image using Google Gemini 2.5 Flash
         
         Args:
             image: PIL Image object
@@ -68,92 +70,54 @@ class LLMReportGenerator:
             - equipment: Visible equipment
         """
         if not self.api_key:
-            print("⚠️ No API key available (self.api_key is None), using fallback analysis")
+            print("⚠️ No API key available, using fallback analysis")
             return self._get_fallback_analysis()
         
-        if not OPENAI_AVAILABLE:
-            print("⚠️ OpenAI module not available, using fallback analysis")
+        if not GEMINI_AVAILABLE:
+            print("⚠️ Gemini module not available, using fallback analysis")
             return self._get_fallback_analysis()
         
-        print(f"✅ Starting AI analysis with OpenAI GPT-4 Vision")
+        print(f"✅ Starting AI analysis with Google Gemini 2.5 Flash")
         print(f"   API Key available: {bool(self.api_key)}")
         print(f"   Model: {self.model_name}")
         
-        # Convert image to base64
-        buffered = io.BytesIO()
         # Resize image to reasonable size (max 1024px)
         max_size = 1024
-        if max(image.size) > max_size:
-            image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
-        image.save(buffered, format="JPEG", quality=85)
-        img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        
-        print(f"   Image encoded: {len(img_base64)} bytes")
+        img_copy = image.copy()
+        if max(img_copy.size) > max_size:
+            img_copy.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
         
         # Construct the prompt
         prompt = self._create_analysis_prompt()
         
         try:
-            # ✅ Make request to OpenAI GPT-4 Vision API
-            print(f"🤖 Requesting AI analysis from OpenAI ({self.model_name})...")
-            print(f"   Timeout: 30 seconds")
-            print(f"   Temperature: 0.3")
-            print(f"   Max tokens: 2048")
+            print(f"🤖 Requesting AI analysis from Gemini ({self.model_name})...")
             
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": f"You are a military intelligence analyst. Analyze this image and respond ONLY with valid JSON in this exact format:\n\n{prompt}"
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{img_base64}"
-                                }
-                            }
-                        ]
-                    }
-                ],
-                temperature=0.3,
-                max_tokens=2048,
-                timeout=30
-            )
+            # Create the content with image and text
+            full_prompt = f"You are a military intelligence analyst. Analyze this image and respond ONLY with valid JSON in this exact format:\n\n{prompt}"
+            
+            response = self.model.generate_content([full_prompt, img_copy])
             
             print(f"📝 API Response received successfully")
-            print(f"   Response type: {type(response)}")
             
             # Extract text from response
-            try:
-                # ✅ NEW: Handle v1.0+ response format (object with attributes, not dict)
-                if not response:
-                    print(f"⚠️ Invalid response structure: None")
-                    return self._get_fallback_analysis()
-                
-                # Try new format first (v1.0+)
-                try:
-                    analysis_text = response.choices[0].message.content
-                except (AttributeError, IndexError, TypeError):
-                    # Fallback to dict format if needed
-                    try:
-                        analysis_text = response['choices'][0]['message']['content']
-                    except (KeyError, IndexError, TypeError) as e:
-                        print(f"⚠️ Error parsing response structure: {str(e)}")
-                        print(f"   Response: {str(response)[:500]}")
-                        return self._get_fallback_analysis()
-                
-                print(f"   Extracted text length: {len(analysis_text)} chars")
-            except Exception as e:
-                print(f"⚠️ Error extracting response: {str(e)}")
-                return self._get_fallback_analysis()
+            analysis_text = response.text
+            
+            print(f"   Raw response: {analysis_text[:200]}...")
             
             # Parse JSON from response
             try:
-                analysis = json.loads(analysis_text)
+                # Clean the response text (remove markdown code blocks if present)
+                cleaned_text = analysis_text.strip()
+                if cleaned_text.startswith('```json'):
+                    cleaned_text = cleaned_text[7:]
+                if cleaned_text.startswith('```'):
+                    cleaned_text = cleaned_text[3:]
+                if cleaned_text.endswith('```'):
+                    cleaned_text = cleaned_text[:-3]
+                cleaned_text = cleaned_text.strip()
+                
+                analysis = json.loads(cleaned_text)
                 print(f"✅ JSON parsed successfully")
             except json.JSONDecodeError as e:
                 print(f"⚠️ JSON decode error: {str(e)}")
@@ -167,14 +131,14 @@ class LLMReportGenerator:
             return analysis
             
         except Exception as e:
-            print(f"❌ Error connecting to OpenAI API: {type(e).__name__}: {str(e)}")
+            print(f"❌ Error connecting to Gemini API: {type(e).__name__}: {str(e)}")
             print(f"   Full error: {repr(e)}")
             
             # Return fallback analysis
             return self._get_fallback_analysis()
     
     def _create_analysis_prompt(self) -> str:
-        """Create the structured prompt for OpenAI Vision API"""
+        """Create the structured prompt for Gemini API"""
         return """You are a military intelligence analyst specializing in camouflage detection. Analyze the provided image and return ONLY a valid JSON object with the following schema.
 
 CRITICAL: Only count soldiers wearing camouflage (woodland, desert, digital, ghillie suits, etc.). DO NOT count soldiers in regular military uniforms without camouflage patterns.
@@ -198,110 +162,88 @@ IMPORTANT RULES:
 Analyze the image and respond with ONLY the JSON object, no additional text."""
     
     def _parse_text_response(self, text: str) -> dict:
-        """
-        Parse non-JSON text response and extract information
+        """Attempt to extract structured data from non-JSON text response"""
+        print("⚠️ Attempting to parse non-JSON response...")
         
-        Args:
-            text: Raw text response from LLM
-        
-        Returns:
-            Structured dictionary
-        """
-        # Try to extract JSON from text
+        # Try to find JSON-like structure in the text
         import re
-        json_match = re.search(r'\{.*\}', text, re.DOTALL)
+        
+        # Look for JSON object
+        json_match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
         if json_match:
             try:
-                return json.loads(json_match.group())
+                return json.loads(json_match.group(0))
             except:
                 pass
         
-        # Fallback: basic text parsing
-        return {
-            "summary": text[:200] if text else "Analysis generated from detected image.",
-            "environment": "Unknown environment",
+        # Fallback: Try to extract key information
+        analysis = {
+            "summary": "Unable to fully parse AI response",
+            "environment": "Unknown",
             "camouflaged_soldier_count": 0,
             "has_camouflage": False,
-            "attire_and_camouflage": "No camouflage detected",
-            "equipment": "N/A"
+            "attire_and_camouflage": "Unable to determine",
+            "equipment": "Unable to determine"
         }
+        
+        # Try to find soldier count
+        count_match = re.search(r'(\d+)\s+soldier', text, re.IGNORECASE)
+        if count_match:
+            analysis["camouflaged_soldier_count"] = int(count_match.group(1))
+            analysis["has_camouflage"] = analysis["camouflaged_soldier_count"] > 0
+        
+        # Try to find environment
+        env_match = re.search(r'environment[:\s]+([^\n.]+)', text, re.IGNORECASE)
+        if env_match:
+            analysis["environment"] = env_match.group(1).strip()
+        
+        return analysis
     
     def _validate_analysis(self, analysis: dict) -> dict:
-        """
-        Ensure analysis has all required fields
-        
-        Args:
-            analysis: Analysis dictionary
-        
-        Returns:
-            Validated dictionary with all required fields
-        """
-        required_fields = {
-            "summary": "Image analyzed for camouflaged soldiers.",
-            "environment": "Unknown environment",
+        """Ensure all required fields are present in the analysis"""
+        # Default structure
+        default_analysis = {
+            "summary": "Analysis completed",
+            "environment": "Unknown",
             "camouflaged_soldier_count": 0,
             "has_camouflage": False,
             "attire_and_camouflage": "No camouflage detected",
             "equipment": "N/A"
         }
         
-        # Map old field names to new ones for backward compatibility
-        if "soldier_count" in analysis and "camouflaged_soldier_count" not in analysis:
-            analysis["camouflaged_soldier_count"] = analysis.get("soldier_count", 0)
+        # Merge with defaults
+        for key, default_value in default_analysis.items():
+            if key not in analysis or analysis[key] is None:
+                analysis[key] = default_value
         
-        if "attire" in analysis and "attire_and_camouflage" not in analysis:
-            analysis["attire_and_camouflage"] = analysis.get("attire", "Unknown")
+        # Ensure soldier_count is a number
+        if not isinstance(analysis.get("camouflaged_soldier_count"), int):
+            try:
+                analysis["camouflaged_soldier_count"] = int(analysis.get("camouflaged_soldier_count", 0))
+            except (ValueError, TypeError):
+                analysis["camouflaged_soldier_count"] = 0
         
-        # Determine has_camouflage if not set
-        if "has_camouflage" not in analysis:
-            count = analysis.get("camouflaged_soldier_count", 0)
-            analysis["has_camouflage"] = count > 0
-        
-        # Fill in missing fields with defaults
-        for field, default_value in required_fields.items():
-            if field not in analysis or not analysis[field]:
-                analysis[field] = default_value
+        # Ensure has_camouflage is a boolean
+        if not isinstance(analysis.get("has_camouflage"), bool):
+            analysis["has_camouflage"] = bool(analysis.get("camouflaged_soldier_count", 0) > 0)
         
         return analysis
     
     def _get_fallback_analysis(self) -> dict:
-        """
-        Return a fallback analysis when LLM is unavailable
-        
-        Returns:
-            Default analysis dictionary
-        """
+        """Return a default analysis when API is unavailable"""
         return {
-            "summary": "Image analyzed. Detailed analysis requires LLM connection.",
-            "environment": "Unknown environment (LLM unavailable)",
+            "summary": "AI analysis unavailable. Manual review recommended.",
+            "environment": "Unable to determine",
             "camouflaged_soldier_count": 0,
             "has_camouflage": False,
-            "attire_and_camouflage": "Unable to analyze - LLM connection required",
-            "equipment": "Unable to analyze - LLM connection required"
+            "attire_and_camouflage": "AI analysis unavailable",
+            "equipment": "AI analysis unavailable"
         }
     
     def check_connection(self) -> bool:
-        """
-        Check if OpenAI API key is available and valid
-        
-        Returns:
-            True if API key is configured, False otherwise
-        """
-        if not self.api_key or not OPENAI_AVAILABLE:
-            print("⚠️ No OpenAI API key configured")
-            print("   Set OPENAI_API_KEY environment variable")
+        """Check if the Gemini API is available and configured"""
+        if not GEMINI_AVAILABLE:
             return False
-        
-        try:
-            # ✅ NEW: Quick API check using OpenAI SDK
-            # Just check if we can initialize without error
-            if self.client:
-                print(f"✅ OpenAI API connected ({self.model_name})")
-                return True
-            else:
-                print(f"⚠️ OpenAI API key not set")
-                return False
-                
-        except Exception as e:
-            print(f"⚠️ Cannot connect to OpenAI API: {str(e)}")
+        if not self.api_key:
             return False
+        return True

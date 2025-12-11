@@ -14,12 +14,12 @@ interface Message {
   };
 }
 
-export default function MoraqibPage() {
+export default function RassidPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: "Welcome to Moraqib! I'm your AI assistant for the Mirqab detection system. Ask me anything about detection reports in our database.",
+      content: "RASSID AI SYSTEM ONLINE. I'm your tactical AI assistant for the CamouBusters detection system. Query detection reports using natural language.",
       timestamp: new Date()
     }
   ]);
@@ -88,12 +88,12 @@ export default function MoraqibPage() {
       setMessages(prev => [...prev, assistantMessage]);
       setShouldAutoScroll(true); // Enable auto-scroll for assistant response
     } catch (error) {
-      console.error('Moraqib query error:', error);
+      console.error('Rassid query error:', error);
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "❌ I'm sorry, I encountered a connection error. Please make sure the backend server is running.",
+        content: "❌ CONNECTION ERROR. Backend server unreachable. Verify server status.",
         timestamp: new Date()
       };
 

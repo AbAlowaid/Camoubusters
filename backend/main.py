@@ -27,15 +27,16 @@ print(f".env exists: {env_path.exists()}")
 load_dotenv(dotenv_path=env_path)
 
 # Verify environment is loaded
-api_key = os.getenv('OPENAI_API_KEY')
-print(f"OpenAI API Key loaded: {bool(api_key)}")
+api_key = os.getenv('GEMINI_API_KEY')
+print(f"Gemini API Key loaded: {bool(api_key)}")
 
 from model_handler import SegmentationModel
 from llm_handler import LLMReportGenerator
 from utils import detect_soldiers, encode_image_to_base64, overlay_mask_on_image
-from firestore_handler import firestore_handler
-from firebase_storage_handler import firebase_storage_handler
+from local_database_handler import local_database_handler
+from local_storage_handler import local_storage_handler
 from moraqib_rag import initialize_rag
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Mirqab API")
 
@@ -56,6 +57,12 @@ moraqib_rag = None
 # API Key for Raspberry Pi authentication
 MIRQAB_API_KEY = os.getenv("MIRQAB_API_KEY", "development-key-change-in-production")
 
+# Mount storage directory for serving images
+backend_dir = Path(__file__).parent
+storage_dir = backend_dir / "storage"
+storage_dir.mkdir(exist_ok=True)  # Create storage directory if it doesn't exist
+app.mount("/storage", StaticFiles(directory=str(storage_dir)), name="storage")
+
 @app.on_event("startup")
 async def startup_event():
     global moraqib_rag
@@ -63,17 +70,13 @@ async def startup_event():
     print("🚀 Starting Mirqab Backend...")
     model.load_model()
     
-    # Initialize Firestore
-    if os.getenv("FIREBASE_CREDENTIALS_PATH"):
-        firestore_handler.initialize()
-        firebase_storage_handler.initialize()
-        
-        # Initialize Moraqib RAG system
-        moraqib_rag = initialize_rag(firestore_handler)
-        print("✅ Moraqib RAG system initialized")
-    else:
-        print("⚠️  Firebase credentials not configured - Pi reporting disabled")
-        print("⚠️  Moraqib RAG system disabled")
+    # Initialize Local Storage and Database
+    local_storage_handler.initialize()
+    local_database_handler.initialize()
+    
+    # Initialize Moraqib RAG system
+    moraqib_rag = initialize_rag(local_database_handler)
+    print("✅ Moraqib RAG system initialized")
     
     print("✅ Ready for automatic AI report generation!")
 
@@ -82,7 +85,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": model.is_loaded(),
-        "openai_api_available": llm.check_connection()  # ✅ Changed from gemini_api_available
+        "gemini_api_available": llm.check_connection()
     }
 
 @app.post("/api/analyze_media")
@@ -188,7 +191,7 @@ async def analyze_media(
                 "total_detections": total_detections
             }
         
-        # Generate Firestore report first to get the proper report ID
+        # Generate local database report first to get the proper report ID
         timestamp = datetime.now().isoformat()
         
         # Format location for report
@@ -201,60 +204,45 @@ async def analyze_media(
         else:
             report_location = {"latitude": 0, "longitude": 0}
         
-        # Save report to Firestore database FIRST to get the proper report ID
-        report_id = None
-        if firestore_handler.db:
-            try:
-                print("💾 Saving report to Firestore database...")
-                firestore_report_data = {
-                    "longitude": report_location["longitude"],
-                    "latitude": report_location["latitude"],
-                    "environment": ai_analysis.get("environment", "Unknown"),
-                    "soldier_count": ai_analysis.get("camouflaged_soldier_count", ai_analysis.get("soldier_count", camouflaged_count)),
-                    "attire_and_camouflage": ai_analysis.get("attire_and_camouflage", ai_analysis.get("attire", "Unknown")),
-                    "equipment": ai_analysis.get("equipment", "Unknown"),
-                    "source_device_id": "Web-Upload"
-                }
-                report_id = firestore_handler.create_detection_report(firestore_report_data)
-                if report_id:
-                    print(f"✅ Report saved to Firestore: {report_id}")
-                    
-                    # Upload images to Firebase Storage
-                    if firebase_storage_handler._initialized:
-                        print("📸 Uploading images to Firebase Storage...")
-                        try:
-                            original_url = firebase_storage_handler.upload_image(original_base64, report_id, "original")
-                            segmented_url = firebase_storage_handler.upload_image(overlay_base64, report_id, "segmented")
-                            
-                            # Update Firestore with image URLs
-                            if original_url or segmented_url:
-                                firestore_handler.db.collection('detection_reports').document(report_id).update({
-                                    'image_snapshot_url': original_url or '',
-                                    'segmented_image_url': segmented_url or ''
-                                })
-                                print(f"✅ Images uploaded and URLs updated in Firestore")
-                            else:
-                                print("⚠️ Failed to upload images to Firebase Storage - bucket may not exist")
-                                print("💡 To fix: Enable Firebase Storage in Firebase Console")
-                        except Exception as e:
-                            print(f"⚠️ Firebase Storage upload failed: {e}")
-                            print("💡 To fix: Enable Firebase Storage in Firebase Console")
-                    else:
-                        print("⚠️ Firebase Storage not initialized - skipping image upload")
-                else:
-                    print("⚠️ Failed to save report to Firestore")
-                    # Fallback to UUID if Firestore fails
-                    report_id = str(uuid.uuid4())[:8].upper()
-            except Exception as e:
-                print(f"⚠️ Error saving to Firestore: {e}")
-                # Fallback to UUID if Firestore fails
-                report_id = str(uuid.uuid4())[:8].upper()
-        else:
-            print("⚠️ Firestore not initialized - using temporary report ID")
-            # Fallback to UUID if Firestore not available
-            report_id = str(uuid.uuid4())[:8].upper()
+        # Generate unique report ID
+        report_id = str(uuid.uuid4())[:8].upper()
         
-        # Build complete report object with the Firestore report ID
+        # Save report to Local Database
+        try:
+            print("💾 Saving report to Local Database...")
+            
+            # Upload images to Local Storage first to get URLs
+            original_url = local_storage_handler.upload_image(original_base64, report_id, "original")
+            segmented_url = local_storage_handler.upload_image(overlay_base64, report_id, "segmented")
+            
+            database_report_data = {
+                "report_id": report_id,
+                "timestamp": timestamp,
+                "location": report_location,
+                "soldier_count": ai_analysis.get("camouflaged_soldier_count", ai_analysis.get("soldier_count", camouflaged_count)),
+                "attire_and_camouflage": ai_analysis.get("attire_and_camouflage", ai_analysis.get("attire", "Unknown")),
+                "environment": ai_analysis.get("environment", "Unknown"),
+                "equipment": ai_analysis.get("equipment", "Unknown"),
+                "image_snapshot_url": original_url or "",
+                "segmented_image_url": segmented_url or "",
+                "source_device_id": "Web-Upload",
+                "ai_summary": ai_analysis.get("summary", "")
+            }
+            
+            success = local_database_handler.save_report(database_report_data)
+            if success:
+                print(f"✅ Report saved to Local Database: {report_id}")
+                if original_url and segmented_url:
+                    print(f"✅ Images saved to Local Storage")
+            else:
+                print("⚠️ Failed to save report to Local Database")
+                
+        except Exception as e:
+            print(f"⚠️ Error saving to Local Database: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        # Build complete report object with the report ID
         # Use Firebase field names for consistency
         report_analysis = {
             "summary": ai_analysis.get("summary", ""),
@@ -314,17 +302,17 @@ async def get_detection_reports(
     Get detection reports for the Detection Reports dashboard
     """
     try:
-        if not firestore_handler.db:
+        if not local_database_handler._initialized:
             return {
                 "success": False,
-                "error": "Firestore not initialized",
+                "error": "Local Database not initialized",
                 "detections": []
             }
         
         print(f"📊 Fetching detection reports (time_range: {time_range}, limit: {limit})")
         
-        # Get reports from Firestore
-        reports = firestore_handler.get_detection_reports(
+        # Get reports from Local Database
+        reports = local_database_handler.get_detection_reports(
             time_range=time_range,
             limit=limit,
             offset=offset
@@ -380,17 +368,17 @@ async def get_detection_stats(time_range: str = "24h"):
     Get detection statistics for KPI cards
     """
     try:
-        if not firestore_handler.db:
+        if not local_database_handler._initialized:
             return {
                 "success": False,
-                "error": "Firestore not initialized",
+                "error": "Local Database not initialized",
                 "stats": {}
             }
         
         print(f"📈 Fetching detection statistics (time_range: {time_range})")
         
         # Get reports for statistics
-        reports = firestore_handler.get_detection_reports(time_range=time_range, limit=1000)
+        reports = local_database_handler.get_detection_reports(time_range=time_range, limit=1000)
         
         total_detections = len(reports)
         critical_alerts = sum(1 for r in reports if r["soldier_count"] >= 3)
@@ -473,7 +461,7 @@ async def test_segmentation(file: UploadFile = File(...)):
 @app.post("/api/report_detection")
 async def report_detection(data: dict):
     """
-    Receive detection report from Raspberry Pi and store in Firestore
+    Receive detection report from Raspberry Pi and store in Local Database
     
     Expected JSON payload:
     {
@@ -501,34 +489,40 @@ async def report_detection(data: dict):
                 "error": "Invalid API key"
             }
         
-        # Check if Firestore is initialized
-        if not firestore_handler._initialized:
-            print("❌ Firestore not initialized")
+        # Check if Local Database is initialized
+        if not local_database_handler._initialized:
+            print("❌ Local Database not initialized")
             return {
                 "success": False,
                 "error": "Database not available"
             }
         
-        # Extract report data
+        # Generate unique report ID
+        report_id = str(uuid.uuid4())[:8].upper()
+        
+        # Extract and prepare report data
+        image_url = ""
+        image_data = data.get("image_data")
+        if image_data:
+            # Upload image to local storage
+            image_url = local_storage_handler.upload_image(image_data, report_id, "detection")
+        
         report_data = {
+            "report_id": report_id,
+            "timestamp": datetime.now().isoformat(),
             "source_device_id": data.get("source_device_id", "Unknown"),
-            "detection_type": data.get("detection_type", "Unknown"),
-            "confidence_score": float(data.get("confidence_score", 0.0)),
-            "summary_text": data.get("summary_text", "Detection event"),
-            "metadata": data.get("metadata", {})
+            "soldier_count": data.get("metadata", {}).get("object_count", 0),
+            "attire_and_camouflage": data.get("summary_text", "Detection event"),
+            "environment": "Unknown",
+            "equipment": "Unknown",
+            "image_snapshot_url": image_url,
+            "location": {"latitude": 0, "longitude": 0}
         }
         
-        # Optional: Upload image to Firebase Storage (TODO)
-        # For now, we'll skip image storage to keep it simple
-        # image_data = data.get("image_data")
-        # if image_data:
-        #     image_url = upload_to_firebase_storage(image_data, report_id)
-        #     report_data["image_snapshot_url"] = image_url
+        # Save report to Local Database
+        success = local_database_handler.save_report(report_data)
         
-        # Create report in Firestore
-        report_id = firestore_handler.create_detection_report(report_data)
-        
-        if report_id:
+        if success:
             print(f"✅ Detection report saved: {report_id}")
             return {
                 "success": True,
@@ -669,9 +663,9 @@ async def moraqib_query(query: str = Form(...)):
     Moraqib RAG Assistant - Query detection reports using natural language
     
     This endpoint implements Retrieval-Augmented Generation (RAG):
-    1. Retrieves relevant detection reports from Firestore
+    1. Retrieves relevant detection reports from Local Database
     2. Augments context with report data
-    3. Generates natural language answer using OpenAI GPT-4 Turbo
+    3. Generates natural language answer using Google Gemini 2.5 Flash
     
     Strict Guardrails:
     - Only answers questions based on detection reports
@@ -690,11 +684,11 @@ async def moraqib_query(query: str = Form(...)):
         print(f"{'='*60}")
         print(f"Question: {query}")
         
-        # Check Firestore initialization
-        if not firestore_handler.db:
+        # Check Local Database initialization
+        if not local_database_handler._initialized:
             return {
                 "success": False,
-                "error": "Database not initialized. Please configure Firebase first."
+                "error": "Database not initialized. Please configure local database first."
             }
         
         # Process query through RAG pipeline
@@ -721,7 +715,7 @@ async def moraqib_query(query: str = Form(...)):
 @app.get("/api/fetch-image-base64")
 async def fetch_image_base64(url: str):
     """
-    Fetch an image from Firebase Storage URL and return as base64
+    Fetch an image from local storage or external URL and return as base64
     This bypasses CORS issues when generating PDFs
     """
     try:
@@ -730,29 +724,24 @@ async def fetch_image_base64(url: str):
         
         print(f"Fetching image from URL: {url}")
         
-        # Check if it's a Firebase Storage URL
-        if 'storage.googleapis.com' in url or 'firebasestorage.googleapis.com' in url:
-            print("Detected Firebase Storage URL, using Firebase Admin SDK...")
+        # Extract path from full URL if needed
+        storage_path = url
+        if url.startswith('http://') or url.startswith('https://'):
+            parsed = urlparse(url)
+            storage_path = parsed.path
+            print(f"Extracted path from full URL: {storage_path}")
+        
+        # Check if it's a local storage path
+        if storage_path.startswith('/storage/'):
+            print("Detected local storage path, reading from filesystem...")
             
-            # Extract the file path from the URL
-            # URL format: https://storage.googleapis.com/bucket-name/path/to/file.jpg
-            parsed_url = urlparse(url)
-            path_parts = parsed_url.path.strip('/').split('/', 1)
+            # Get absolute filesystem path
+            file_path = local_storage_handler.get_file_path(storage_path)
             
-            if len(path_parts) >= 2:
-                bucket_name = path_parts[0]
-                file_path = unquote(path_parts[1])
-                
-                print(f"Bucket: {bucket_name}, File path: {file_path}")
-                
-                # Use Firebase Admin SDK to download the file
-                from firebase_admin import storage
-                
-                bucket = storage.bucket(bucket_name)
-                blob = bucket.blob(file_path)
-                
-                # Download the image
-                image_bytes = blob.download_as_bytes()
+            if file_path and file_path.exists():
+                # Read the image file
+                with open(file_path, 'rb') as f:
+                    image_bytes = f.read()
                 
                 # Convert to base64
                 image_base64 = base64.b64encode(image_bytes).decode('utf-8')
@@ -760,14 +749,16 @@ async def fetch_image_base64(url: str):
                 # Create data URL
                 data_url = f"data:image/jpeg;base64,{image_base64}"
                 
-                print(f"Successfully fetched image via Firebase SDK, size: {len(image_base64)} bytes")
+                print(f"Successfully fetched image from local storage, size: {len(image_base64)} bytes")
                 
                 return JSONResponse(content={
                     "success": True,
                     "base64": data_url
                 })
+            else:
+                raise HTTPException(status_code=404, detail="Image not found in local storage")
         
-        # Fallback to regular HTTP request for non-Firebase URLs
+        # Fallback to regular HTTP request for external URLs
         print("Using regular HTTP request...")
         response = requests.get(url, timeout=10)
         response.raise_for_status()

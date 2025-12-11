@@ -267,20 +267,15 @@ python realtime_camera_detection.py
 
 **Data Science & Machine Learning Bootcamp - Tuwaiq Academy 2025**
 
-- **Saif Alotaibi** - Team Leader  
-  Email: cssaif.o@gmail.com
+- **Mohannad Alduwish** - Team Leader
 
-- **Fatimah Alsubaie** - Data Scientist  
-  Email: fatima.t.alsubaie@gmail.com
+- **Basim Aldawood** - Data Scientist
 
-- **Abdulrahman Attar** - Data Analyst  
-  Email: abdulrahman.att7@gmail.com
+- **Nawaf Aljubir** - Data Scientist
 
-- **Mousa Alatewi** - Data Scientist  
-  Email: mousa.alatwei.1@gmail.com
+- **Bader Aljobairy** - Data Analyst
 
-- **Abdulelah Alowaid** - Data Scientist  
-  Email: ab.alowaid@gmail.com
+- **Abdulelah Alowaid** - Data Scientist
 
 ## Project Beneficiaries
 

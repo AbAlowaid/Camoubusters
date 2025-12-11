@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
-import MoraqibPromo from '@/components/MoraqibPromo'
+import RassidPromo from '@/components/RassidPromo'
 
 export const metadata: Metadata = {
   title: 'Mirqab - Advanced Detection System',
@@ -22,7 +22,7 @@ export default function RootLayout({
         </main>
         
         {/* Promotional CTA Box */}
-        <MoraqibPromo />
+        <RassidPromo />
         
         {/* Simplified Footer */}
         <footer className="relative bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white py-12 mt-16">

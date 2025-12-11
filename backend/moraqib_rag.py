@@ -8,11 +8,18 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from dotenv import load_dotenv
-from openai import OpenAI
 import re
 
 # Load environment variables
 load_dotenv()
+
+# Import Google Generative AI
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    print("⚠️ Google Generative AI not installed. Install with: pip install google-generativeai")
 
 
 class MoraqibRAG:
@@ -25,22 +32,26 @@ class MoraqibRAG:
     - Context-aware response generation
     """
     
-    def __init__(self, firestore_handler):
+    def __init__(self, database_handler):
         """
         Initialize Moraqib RAG system
         
         Args:
-            firestore_handler: Instance of FirestoreHandler for database access
+            database_handler: Instance of LocalDatabaseHandler for database access
         """
-        self.firestore = firestore_handler
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.database = database_handler
+        self.api_key = os.getenv("GEMINI_API_KEY") or "AIzaSyCnAKAPl3f40biAtHfJ57NFywqa5NHZgN4"
         
         if not self.api_key:
-            print("⚠️ Warning: OPENAI_API_KEY not found in environment")
-            self.client = None
+            print("⚠️ Warning: GEMINI_API_KEY not found in environment")
+            self.model = None
+        elif not GEMINI_AVAILABLE:
+            print("⚠️ Warning: Google Generative AI not available")
+            self.model = None
         else:
-            self.client = OpenAI(api_key=self.api_key)
-            print("✅ Moraqib RAG initialized with OpenAI")
+            genai.configure(api_key=self.api_key)
+            self.model = genai.GenerativeModel('gemini-2.5-flash')
+            print("✅ Moraqib RAG initialized with Gemini")
     
     async def query(self, user_query: str) -> Dict:
         """
@@ -314,24 +325,23 @@ class MoraqibRAG:
         is_ordinal = temporal_context.get('type') == 'ordinal'
         order_by_desc = not is_ordinal  # Reverse for ordinal queries
         
-        print(f"🔍 Querying Firestore:")
+        print(f"🔍 Querying Local Database:")
         print(f"   Device: {device_id or 'All'}")
         print(f"   Limit: {limit}")
         print(f"   Order: {'Ascending (oldest first)' if not order_by_desc else 'Descending (newest first)'}")
         print(f"   Date range: {start_date} to {end_date}")
         
-        # Query Firestore
+        # Query Local Database
         try:
-            if not self.firestore.db:
-                print("❌ Firestore not initialized")
+            if not self.database._initialized:
+                print("❌ Local Database not initialized")
                 return []
             
-            reports = self.firestore.query_reports(
+            reports = self.database.query_reports(
                 start_date=start_date,
                 end_date=end_date,
                 device_id=device_id,
-                limit=limit,
-                order_by_desc=order_by_desc
+                limit=limit
             )
             
             return reports
@@ -384,7 +394,7 @@ class MoraqibRAG:
         Returns:
             Natural language answer
         """
-        if not self.client:
+        if not self.model:
             return self._generate_fallback_answer(query, reports, intent, temporal_context)
         
         # Handle empty results
@@ -462,23 +472,15 @@ Please answer the question based on the detection reports above. Be specific and
 
         try:
             # Call OpenAI API
-            response = self.client.chat.completions.create(
-                model="gpt-4-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.3,
-                max_tokens=1000
-            )
-            
-            answer = response.choices[0].message.content
+            full_prompt = f"{system_prompt}\n\n{user_prompt}"
+            response = self.model.generate_content(full_prompt)
+            answer = response.text
             print(f"✅ Generated answer ({len(answer)} chars)")
             
             return answer
         
         except Exception as e:
-            print(f"❌ Error generating answer with OpenAI: {e}")
+            print(f"❌ Error generating answer with Gemini: {e}")
             return self._generate_fallback_answer(query, reports, intent, temporal_context)
     
     def _prepare_ordinal_context(self, report: Dict, position: int) -> str:
@@ -698,9 +700,9 @@ Try:
 moraqib_rag = None
 
 
-def initialize_rag(firestore_handler):
+def initialize_rag(database_handler):
     """Initialize the global RAG instance"""
     global moraqib_rag
-    moraqib_rag = MoraqibRAG(firestore_handler)
+    moraqib_rag = MoraqibRAG(database_handler)
     return moraqib_rag
 

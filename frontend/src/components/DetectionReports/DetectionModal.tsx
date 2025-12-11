@@ -291,10 +291,10 @@ export default function DetectionModal({ detection, isOpen, onClose }: Detection
                       onChange={(e) => setNewAssignee(e.target.value)}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="Saif Alotaibi">Saif Alotaibi</option>
-                      <option value="Fatimah Alsubaie">Fatimah Alsubaie</option>
-                      <option value="Abdulrahman Attar">Abdulrahman Attar</option>
-                      <option value="Mousa Alatewi">Mousa Alatewi</option>
+                      <option value="Mohannad Alduwish">Mohannad Alduwish</option>
+                      <option value="Basim Aldawood">Basim Aldawood</option>
+                      <option value="Nawaf Aljubir">Nawaf Aljubir</option>
+                      <option value="Bader Aljobairy">Bader Aljobairy</option>
                       <option value="Abdulelah Alowaid">Abdulelah Alowaid</option>
                       <option value="Unassigned">Unassigned</option>
                     </select>
