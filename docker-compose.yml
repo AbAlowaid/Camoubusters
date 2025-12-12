@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: mirqab-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount .env file for API keys
+      - ./.env:/app/.env:ro
+      # Persist storage data
+      - ./backend/storage:/app/storage
+      # Mount the model file
+      - ./resnet_finetuned_best.h5:/app/resnet_finetuned_best.h5:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - mirqab-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  mirqab-network:
+    driver: bridge

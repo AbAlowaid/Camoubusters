@@ -50,8 +50,8 @@ class MoraqibRAG:
             self.model = None
         else:
             genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-flash')
-            print("✅ Moraqib RAG initialized with Gemini")
+            self.model = genai.GenerativeModel('gemini-2.5-flash-exp')
+            print("✅ Moraqib RAG initialized with Gemini 2.5 Flash Exp")
     
     async def query(self, user_query: str) -> Dict:
         """
