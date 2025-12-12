@@ -291,5 +291,3 @@ python realtime_detection.py
 
 **Status: Production Ready** \| **Version: 1.0** \| **Last Updated:
 2025**
-
-Built by Team **Camoubusters** at Tuwaiq Academy.
