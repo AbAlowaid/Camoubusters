@@ -1,6 +1,13 @@
-# Mirqab - Advanced AI-Powered Camouflage Detection System
+# Camoubusters -- AI-Powered Camouflage Soldier Detection System
 
-A comprehensive AI-powered web application for real-time detection and analysis of camouflaged soldiers using DeepLabV3 deep learning model with automated reporting and intelligent querying capabilities.
+Camoubusters is an advanced AI-powered system for detecting camouflaged
+soldiers in real time across diverse environments and terrains. It
+enhances situational awareness, supports security operations, and
+accelerates decision-making by transforming raw visual input into
+actionable intelligence. Using state-of-the-art computer vision and
+multimodal AI capabilities, Camoubusters identifies hidden or partially
+concealed soldiers and automatically generates contextual summaries to
+help users interpret each detection event quickly and accurately.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)
@@ -11,297 +18,277 @@ A comprehensive AI-powered web application for real-time detection and analysis 
 ## Features
 
 ### Detection & Analysis
-- **Image Upload Analysis**: Upload images for automatic camouflage soldier detection
-- **Real-time Camera Detection**: Live webcam feed processing with automatic report generation
-- **DeepLabV3 Segmentation**: State-of-the-art semantic segmentation model
-- **GPU & CPU Support**: Optimized for both GPU acceleration and CPU processing
+
+-   **Upload-Based Image Analysis**: Upload images for AI-powered
+    camouflage soldier detection.
+-   **Real-Time Detection**: Live camera feed processing for immediate
+    soldier identification.
+-   **Semantic Segmentation Model**: Advanced AI models trained for
+    camouflage recognition.
+-   **Optimized Performance**: Supports both GPU acceleration and
+    CPU-only environments.
 
 ### AI-Powered Intelligence
-- **OpenAI GPT-4 Vision**: Automated detailed analysis of detections
-- **Smart Report Generation**: Automatic environment, attire, and equipment analysis
-- **Moraqib RAG System**: Natural language querying of historical detection reports
-- **Contextual Insights**: AI-powered answers based on your detection database
 
-### Detection Reports Dashboard
-- **SOC-Style Interface**: Professional security operations center dashboard
-- **Real-time Statistics**: Live detection counts and trends
-- **Interactive Charts**: Visual analytics with Chart.js
-- **Advanced Filtering**: Filter by time range, status, severity, and device
-- **Status Management**: Track and update detection statuses
-- **Team Assignment**: Assign detections to team members
+-   **Vision-Language Model Summaries**: Automatic contextual summaries
+    for each detection.
+-   **Smart Report Generation**: Extracts environment details, soldier
+    count, and visual indicators.
+-   **RAG Assistant Integration**: Natural-language querying of
+    detection history.
+-   **Insightful Analytics**: AI-generated explanations based on user
+    data.
+
+### Dashboard (Command Center)
+
+-   **Clean & Centralized Interface**: Overview of detections, reports,
+    and activity.
+-   **Key Metrics Display**: Soldier count, report frequency, and
+    location mapping.
+-   **Interactive Visualization**: Charts and maps for operational
+    clarity.
+-   **Event Summaries**: Automatically generated descriptions for quick
+    understanding.
 
 ### Report Management
-- **PDF Export**: Professional PDF reports with images and metadata
-- **Firebase Storage**: Automatic cloud storage of detection images
-- **Location Tracking**: GPS/IP-based location detection
-- **Image Evidence**: Both original and segmented images stored
-- **Detailed Metadata**: Comprehensive detection information
 
-### Real-time Features
-- **Live Detection**: Continuous monitoring with automatic reporting
-- **2-Minute Cooldown**: Intelligent spam prevention for auto-reports
-- **Visual Countdown**: Real-time countdown to next report
-- **Multi-Device Support**: Track detections from multiple sources
+-   **PDF Export**: Generate structured incident reports with images and
+    metadata.
+-   **Cloud Storage**: Automatic upload of raw and processed images.
+-   **Location Logging**: Store GPS/IP data for each detection.
+-   **Complete Metadata Tracking**: Environment, threats, time, soldier
+    count, and more.
+
+### Real-Time Features
+
+-   **Continuous Monitoring**: Persistent detection pipeline.
+-   **Cooldown Mechanisms**: Prevents duplicate detections within short
+    intervals.
+-   **Live Status Indicators**: Real-time activity, alerts, and
+    processing feedback.
+-   **Multi-Device Support**: Handle detections from multiple sources.
 
 ## Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- Node.js 18+
-- OpenAI API Key
-- Firebase Project (for storage and database)
-- Model file: `best_deeplabv3_camouflage.pth`
+
+-   Python 3.9+
+-   Node.js 18+
+-   OpenAI API Key (for VLM summaries)
+-   Firebase Project (for database and storage)
+-   Model file: `best_deeplabv3_camouflage.pth`
 
 ### Installation
 
 #### 1. Clone the Repository
-```bash
-git clone https://github.com/AbAlowaid/Mirqab.git
-cd Mirqab
+
+``` bash
+git clone https://github.com/AbAlowaid/Camoubusters.git
+cd Camoubusters
 ```
 
 #### 2. Backend Setup
-```bash
-# Create virtual environment
+
+``` bash
 python -m venv venv
-.\venv\Scripts\Activate.ps1  # Windows
+.env\Scripts\Activate.ps1   # Windows
 # source venv/bin/activate    # Linux/Mac
 
-# Install dependencies
 pip install -r requirements.txt
 
-# Set up environment variables
-# Create .env file in project root
-echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
-echo "FIREBASE_CREDENTIALS_PATH=path/to/firebase-credentials.json" >> .env
-echo "DEVICE_ID=Main-Detection-Station" >> .env
+# Environment variables
+echo "OPENAI_API_KEY=your_api_key" > .env
+echo "FIREBASE_CREDENTIALS_PATH=path/to/firebase.json" >> .env
+echo "DEVICE_ID=Main-Detection-Unit" >> .env
 ```
 
 #### 3. Firebase Setup
-1. Create a Firebase project at https://console.firebase.google.com
-2. Enable Firestore Database and Firebase Storage
-3. Download service account credentials JSON file
-4. Place it in your project directory
-5. Update `FIREBASE_CREDENTIALS_PATH` in `.env`
+
+1.  Create project in Firebase Console\
+2.  Enable Firestore + Firebase Storage\
+3.  Download service account credentials\
+4.  Place credentials in your backend directory\
+5.  Update `.env` accordingly
 
 #### 4. Start Backend Server
-```bash
+
+``` bash
 cd backend
 python main.py
 ```
-Backend will be available at `http://localhost:8000`
+
+API will run at: **http://localhost:8000**
 
 #### 5. Frontend Setup
-```bash
+
+``` bash
 cd frontend
 npm install
 
-# Create .env.local file
 echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
 
-# Start development server
 npm run dev
 ```
-Frontend will be available at `http://localhost:3000`
+
+Frontend will run at: **http://localhost:3000**
 
 ## Project Structure
 
-```
-Mirqab/
-├── backend/                          # FastAPI Backend
-│   ├── main.py                      # Main API server with all endpoints
-│   ├── model_handler.py             # DeepLabV3 model handler
-│   ├── llm_handler.py               # OpenAI GPT-4 Vision integration
-│   ├── moraqib_rag.py               # RAG system for intelligent queries
-│   ├── firestore_handler.py         # Firebase Firestore database
-│   ├── firebase_storage_handler.py  # Firebase Storage for images
-│   └── utils.py                     # Utility functions
-├── frontend/                         # Next.js Frontend
-│   ├── src/
-│   │   ├── app/                     # Next.js 14 App Router
-│   │   │   ├── page.tsx            # Home page
-│   │   │   ├── upload/             # Upload & analysis page
-│   │   │   ├── detection-reports/  # Reports dashboard
-│   │   │   ├── moraqib/            # RAG AI assistant
-│   │   │   ├── about/              # About page
-│   │   │   └── live/               # Live detection (optional)
-│   │   ├── components/              # React components
-│   │   │   ├── Navbar.tsx          # Navigation bar
-│   │   │   ├── ReportModal.tsx     # Report display modal
-│   │   │   ├── LocationMap.tsx     # Map component
-│   │   │   └── DetectionReports/   # Dashboard components
-│   │   └── utils/
-│   │       └── pdfGenerator.ts     # PDF generation utility
-│   └── public/                      # Static assets
-│       └── Mirqab_white (1).png    # Logo
-├── best_deeplabv3_camouflage.pth    # Trained model file
-├── segmentation.py                   # Live detection script
-├── realtime_camera_detection.py      # Camera detection with auto-report
-├── RASPBERRY_PI_5_SETUP_GUIDE.md    # Raspberry Pi deployment guide
-├── requirements.txt                  # Python dependencies
-├── .env                             # Environment variables
-└── README.md                        # This file
-```
+    Camoubusters/
+    ├── backend/
+    │   ├── main.py
+    │   ├── model_handler.py
+    │   ├── llm_handler.py
+    │   ├── rag_assistant.py
+    │   ├── firestore_handler.py
+    │   ├── storage_handler.py
+    │   └── utils.py
+    ├── frontend/
+    │   ├── src/
+    │   │   ├── app/
+    │   │   │   ├── page.tsx
+    │   │   │   ├── analysis/
+    │   │   │   ├── dashboard/
+    │   │   │   ├── assistant/
+    │   │   │   └── about/
+    │   │   ├── components/
+    │   │   │   ├── Navbar.tsx
+    │   │   │   ├── ReportCard.tsx
+    │   │   │   ├── MapView.tsx
+    │   │   │   └── DashboardComponents/
+    │   │   └── utils/pdfGenerator.ts
+    │   └── public/
+    │       └── camoubusters_logo.png
+    ├── segmentation.py
+    ├── realtime_detection.py
+    ├── requirements.txt
+    └── README.md
 
 ## Technologies
 
 ### Backend
-- **FastAPI**: High-performance async API framework
-- **PyTorch**: Deep learning framework
-- **DeepLabV3**: Semantic segmentation model (ResNet-101 backbone)
-- **OpenAI GPT-4 Vision**: Advanced image analysis
-- **Firebase Admin SDK**: Cloud database and storage
-- **LangChain**: RAG system implementation
+
+-   FastAPI
+-   PyTorch (DeepLabV3 / segmentation models)
+-   Vision-Language Models (VLM integration)
+-   Firebase Admin SDK
+-   RAG system (vector search + embeddings)
 
 ### Frontend
-- **Next.js 14**: React framework with App Router
-- **TypeScript**: Type-safe JavaScript
-- **Tailwind CSS**: Utility-first CSS framework
-- **Chart.js**: Interactive charts and graphs
-- **Leaflet**: Interactive maps
-- **jsPDF**: PDF generation
+
+-   Next.js 14
+-   React + TypeScript
+-   TailwindCSS
+-   Chart.js
+-   Leaflet maps
+-   jsPDF
 
 ### AI/ML
-- **DeepLabV3**: Semantic segmentation
-- **OpenAI GPT-4 Vision**: Image understanding and analysis
-- **OpenAI Embeddings**: Vector embeddings for RAG
-- **FAISS**: Vector similarity search
+
+-   Semantic segmentation (DeepLabV3)
+-   VLM summarization
+-   Vector embeddings + FAISS for RAG
+-   Environment/weapon/person detection
 
 ## API Endpoints
 
 ### Detection & Analysis
-- `POST /api/analyze_media` - Analyze uploaded image/video
-- `POST /api/report_detection` - Create new detection report
-- `POST /api/test_segmentation` - Test segmentation on image
 
-### Reports Management
-- `GET /api/detection-reports` - Get all detection reports with filters
-- `GET /api/detection-stats` - Get detection statistics
-- `GET /api/fetch-image-base64` - Fetch Firebase images for PDF generation
+-   `POST /api/analyze_media` -- Analyze uploaded image
+-   `POST /api/report_detection` -- Create a detection report
+-   `POST /api/segment_test` -- Run segmentation model
 
-### AI Assistant
-- `POST /api/moraqib_query` - Query reports using natural language
+### Reports & Dashboard
+
+-   `GET /api/reports` -- Retrieve detection reports
+-   `GET /api/stats` -- Dashboard statistics
+-   `GET /api/fetch-image-base64` -- Retrieve stored images
+
+### RAG Assistant
+
+-   `POST /api/assistant_query` -- Ask natural-language questions
 
 ### System
-- `GET /health` - Health check and system status
+
+-   `GET /health` -- Health check
 
 ## Key Features Explained
 
-### 1. Live Detection with Auto-Reporting
-Run `segmentation.py` or `realtime_camera_detection.py` for continuous monitoring:
-- Detects camouflaged soldiers in real-time
-- Automatically generates reports every 2 minutes
-- Uploads images to Firebase Storage
-- Stores reports in Firestore
-- Displays countdown to next report
+### 1. Dashboard (Command Center)
 
-### 2. Moraqib RAG System
-Intelligent AI assistant that can:
-- Answer questions about detection history
-- Analyze trends and patterns
-- Provide insights from past reports
-- Query by location, time, environment, etc.
+Displays: - Total soldiers detected - Total reports generated - Map of
+detection locations - VLM-generated summaries\
+Allows rapid situational awareness.
 
-### 3. SOC Dashboard
-Professional security operations center interface:
-- Real-time KPI cards
-- Interactive charts (detections over time, environment breakdown)
-- Filterable detection table
-- Status and severity management
-- Team assignment capabilities
+### 2. Analysis Page
 
-### 4. PDF Report Generation
-Professional reports including:
-- Report ID and timestamp
-- Location with coordinates
-- AI analysis (environment, soldier count, attire, equipment)
-- Visual evidence (original and segmented images)
-- Mirqab branding
+Users upload images to: - Detect camouflaged soldiers - Identify
+environment type - Count individuals - Detect weapons or equipment\
+Used for intelligence validation and mission planning.
+
+### 3. Assistant (RAG System)
+
+Ask questions such as: - "How many detections happened today?" - "Show
+detections in desert environments." - "Summarize last week's activity."\
+Automatically retrieves relevant report data.
+
+## PDF Report Generation
+
+Reports include: - Timestamp & event ID\
+- Coordinates\
+- AI-generated contextual summary\
+- Original & processed images\
+- Soldier count and environment classification
 
 ## Configuration
 
-### Environment Variables
+### Backend `.env`
 
-**Root `.env` file:**
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-FIREBASE_CREDENTIALS_PATH=./backend/firebase-credentials.json
-DEVICE_ID=Main-Detection-Station
+``` env
+OPENAI_API_KEY=your_api_key
+FIREBASE_CREDENTIALS_PATH=./backend/firebase.json
+DEVICE_ID=Main-Detection-Unit
 ```
 
-**Frontend `.env.local`:**
-```env
+### Frontend `.env.local`
+
+``` env
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-### Firebase Setup
-1. Create Firestore collection: `detection_reports`
-2. Enable Firebase Storage bucket
-3. Set up storage rules for public read access
-4. Download service account credentials
-
 ## Usage Examples
 
-### Upload Image Analysis
-1. Navigate to Upload page
-2. Select image or drag & drop
-3. Wait for AI analysis
-4. View detailed report
-5. Download PDF
+### Upload Image
+
+1.  Go to **Analysis**\
+2.  Upload image\
+3.  View detection results + AI summary\
+4.  Download PDF
 
 ### Live Detection
-```bash
+
+``` bash
 python segmentation.py
 # or
-python realtime_camera_detection.py
+python realtime_detection.py
 ```
 
-### Query with Moraqib AI
-1. Navigate to Moraqib AI page
-2. Ask questions like:
-   - "How many detections were made today?"
-   - "Show me detections in forest environments"
-   - "What equipment was most commonly detected?"
+### Ask the Assistant
+
+-   "What was the earliest detection today?"
+-   "What environment had the most activity?"
+-   "Summarize all forest detections."
 
 ## Development Team
 
-**Data Science & Machine Learning Bootcamp - Tuwaiq Academy 2025**
+-   **Basim Aldawood**
+-   **Nawaf Aljubair**
+-   **Bader Aljobairy**
+-   **Mohannad Alduwish**
+-   **Abdulelah Alowaid**
 
-- **Mohannad Alduwish** - Team Leader
 
-- **Basim Aldawood** - Data Scientist
+**Status: Production Ready** \| **Version: 1.0** \| **Last Updated:
+2025**
 
-- **Nawaf Aljubir** - Data Scientist
-
-- **Bader Aljobairy** - Data Analyst
-
-- **Abdulelah Alowaid** - Data Scientist
-
-## Project Beneficiaries
-
-This system is designed to benefit key defense and security organizations in Saudi Arabia:
-
-- **SAMI** - Saudi Arabian Military Industries
-- **GAMI** - General Authority for Military Industries
-- **SAFCSP** - Saudi Federation for Cybersecurity, Programming and Drones
-
-## License
-
-This project is developed as part of the Data Science & ML Bootcamp at Tuwaiq Academy.
-
-## Contributing
-
-This is an educational project developed during the bootcamp. For questions or suggestions, please contact the development team.
-
-## Acknowledgments
-
-- Tuwaiq Academy for providing the learning platform
-- OpenAI for GPT-4 Vision API
-- Firebase for cloud infrastructure
-- PyTorch and torchvision teams
-
----
-
-**Status: Production Ready** | **Version: 3.0** | **Last Updated: November 2025**
-
-Built by Team Mirqab at Tuwaiq Academy
+Built by Team **Camoubusters** at Tuwaiq Academy.
