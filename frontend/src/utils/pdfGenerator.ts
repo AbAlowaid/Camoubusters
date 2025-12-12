@@ -25,7 +25,7 @@ export function generatePDF(report: Report) {
   // Title
   doc.setFontSize(22)
   doc.setTextColor(26, 95, 63) // Primary color
-  doc.text('Mirqab Detection Report', 105, yPosition, { align: 'center' })
+  doc.text('Camoubusters Detection Report', 105, yPosition, { align: 'center' })
   
   yPosition += 15
 
@@ -136,11 +136,9 @@ export function generatePDF(report: Report) {
       try {
         // Detect image format from base64 string
         const imageFormat = report.images.original_base64.includes('data:image/png') ? 'PNG' : 'JPEG'
-        console.log('Adding original image with format:', imageFormat)
         doc.addImage(report.images.original_base64, imageFormat, 20, yPosition, imgWidth, imgHeight)
         imagesAdded = true
       } catch (imgError) {
-        console.error('Error adding original image:', imgError)
         doc.setFontSize(9)
         doc.setTextColor(200, 0, 0)
         doc.text('Original image could not be loaded', 20, yPosition + 30)
@@ -164,11 +162,9 @@ export function generatePDF(report: Report) {
       try {
         // Detect image format from base64 string
         const imageFormat = report.images.masked_base64.includes('data:image/png') ? 'PNG' : 'JPEG'
-        console.log('Adding segmented image with format:', imageFormat)
         doc.addImage(report.images.masked_base64, imageFormat, 110, imagesAdded ? yPosition : yPosition + 5, imgWidth, imgHeight)
         imagesAdded = true
       } catch (imgError) {
-        console.error('Error adding segmented image:', imgError)
         doc.setFontSize(9)
         doc.setTextColor(200, 0, 0)
         doc.text('Segmented image could not be loaded', 110, (imagesAdded ? yPosition : yPosition + 5) + 30)
@@ -184,7 +180,6 @@ export function generatePDF(report: Report) {
     
     yPosition += imgHeight + 15
   } catch (error) {
-    console.error('Error adding images to PDF:', error)
     doc.setFontSize(10)
     doc.setTextColor(255, 0, 0)
     doc.text('Error: Unable to embed images in PDF', 20, yPosition)
@@ -199,7 +194,7 @@ export function generatePDF(report: Report) {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.text(
-      `Page ${i} of ${pageCount} - Mirqab Detection System`,
+      `Page ${i} of ${pageCount} - Camoubusters Detection System`,
       105,
       285,
       { align: 'center' }
@@ -207,6 +202,6 @@ export function generatePDF(report: Report) {
   }
 
   // Save PDF
-  const filename = `Mirqab_Report_${report.report_id.slice(0, 8)}_${new Date(report.timestamp).toISOString().slice(0, 10)}.pdf`
+  const filename = `Camoubusters_Report_${report.report_id.slice(0, 8)}_${new Date(report.timestamp).toISOString().slice(0, 10)}.pdf`
   doc.save(filename)
 }

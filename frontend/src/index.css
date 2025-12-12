@@ -1,0 +1,284 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Military Dark Theme */
+    --background: 120 30% 5%;
+    --foreground: 120 10% 90%;
+
+    --card: 120 25% 8%;
+    --card-foreground: 120 10% 90%;
+
+    --popover: 120 25% 8%;
+    --popover-foreground: 120 10% 90%;
+
+    /* Military Green */
+    --primary: 120 40% 25%;
+    --primary-foreground: 120 10% 95%;
+
+    /* Darker Green */
+    --secondary: 120 30% 12%;
+    --secondary-foreground: 120 10% 90%;
+
+    --muted: 120 20% 15%;
+    --muted-foreground: 120 10% 60%;
+
+    /* Tactical Amber */
+    --accent: 45 100% 50%;
+    --accent-foreground: 120 30% 5%;
+
+    /* Alert Red */
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 120 30% 18%;
+    --input: 120 25% 15%;
+    --ring: 120 50% 40%;
+
+    --radius: 0.375rem;
+
+    /* Custom Military Variables */
+    --military-green-dark: 120 30% 5%;
+    --military-green: 120 40% 15%;
+    --military-green-light: 120 35% 25%;
+    --military-green-glow: 120 60% 40%;
+    
+    --tactical-amber: 45 100% 50%;
+    --tactical-amber-dim: 45 80% 35%;
+    --tactical-red: 0 72% 50%;
+    --tactical-blue: 200 80% 50%;
+    
+    --hud-green: 120 80% 50%;
+    --hud-glow: 0 0 20px hsl(120 60% 40% / 0.5);
+    
+    /* Gradients */
+    --gradient-military: linear-gradient(180deg, hsl(120 30% 8%) 0%, hsl(120 30% 5%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(120 25% 10%) 0%, hsl(120 25% 6%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(45 100% 50%) 0%, hsl(45 80% 40%) 100%);
+    
+    /* Shadows */
+    --shadow-glow: 0 0 30px hsl(120 60% 30% / 0.3);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.4);
+    --shadow-accent: 0 0 20px hsl(45 100% 50% / 0.3);
+
+    --sidebar-background: 120 30% 6%;
+    --sidebar-foreground: 120 10% 90%;
+    --sidebar-primary: 120 40% 25%;
+    --sidebar-primary-foreground: 120 10% 95%;
+    --sidebar-accent: 120 30% 12%;
+    --sidebar-accent-foreground: 120 10% 90%;
+    --sidebar-border: 120 30% 15%;
+    --sidebar-ring: 120 50% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Cairo', 'JetBrains Mono', sans-serif;
+    background: 
+      radial-gradient(circle at 20% 20%, hsl(120 30% 10% / 0.5) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(120 30% 8% / 0.5) 0%, transparent 50%),
+      hsl(var(--background));
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--secondary));
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--military-green-light));
+  }
+}
+
+@layer components {
+  /* HUD Grid Pattern */
+  .hud-grid {
+    background-image: 
+      linear-gradient(hsl(120 30% 20% / 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(120 30% 20% / 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Scanline Effect */
+  .scanline {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .scanline::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      transparent 50%,
+      hsl(120 30% 5% / 0.03) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+  }
+
+  /* Glow Effects */
+  .glow-green {
+    box-shadow: 0 0 20px hsl(120 60% 40% / 0.3), inset 0 0 20px hsl(120 60% 40% / 0.1);
+  }
+
+  .glow-amber {
+    box-shadow: 0 0 20px hsl(45 100% 50% / 0.3);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 20px hsl(0 72% 50% / 0.4);
+  }
+
+  /* Military Border Style */
+  .border-tactical {
+    border: 1px solid hsl(var(--border));
+    position: relative;
+  }
+
+  .border-tactical::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--military-green-glow)), transparent);
+  }
+
+  /* Text Glow */
+  .text-glow {
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  /* Pulse Animation */
+  .pulse-tactical {
+    animation: pulse-tactical 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-tactical {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Corner Brackets */
+  .corner-brackets {
+    position: relative;
+  }
+
+  .corner-brackets::before,
+  .corner-brackets::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: hsl(var(--military-green-glow));
+    border-style: solid;
+  }
+
+  .corner-brackets::before {
+    top: 0;
+    left: 0;
+    border-width: 2px 0 0 2px;
+  }
+
+  .corner-brackets::after {
+    bottom: 0;
+    right: 0;
+    border-width: 0 2px 2px 0;
+  }
+
+  /* Status Indicators */
+  .status-online {
+    @apply bg-green-500;
+    box-shadow: 0 0 8px hsl(120 80% 50% / 0.6);
+  }
+
+  .status-offline {
+    @apply bg-red-500;
+    box-shadow: 0 0 8px hsl(0 72% 50% / 0.6);
+  }
+
+  .status-warning {
+    @apply bg-amber-500;
+    box-shadow: 0 0 8px hsl(45 100% 50% / 0.6);
+  }
+
+  /* Arabic text support */
+  .rtl {
+    direction: rtl;
+  }
+
+  .font-arabic {
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .font-tactical {
+    font-family: 'Orbitron', monospace;
+  }
+
+  .font-mono-tactical {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  /* Animation Delays */
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-500 { animation-delay: 500ms; }
+
+  /* Fade In Animation */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+
+  /* Flicker Animation */
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.8; }
+    94% { opacity: 1; }
+    95% { opacity: 0.9; }
+    96% { opacity: 1; }
+  }
+
+  .animate-flicker {
+    animation: flicker 3s infinite;
+  }
+}

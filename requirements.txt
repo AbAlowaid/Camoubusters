@@ -4,25 +4,19 @@ uvicorn[standard]==0.27.0
 python-multipart==0.0.6
 
 # Deep Learning and Computer Vision
-torch==2.1.2
-torchvision==0.16.2
-Pillow==10.2.0
-opencv-python==4.9.0.80
-numpy>=1.24.3,<2.0
+tensorflow>=2.13.0
+keras>=2.13.0
+Pillow>=10.3.0
+opencv-python>=4.9.0.80
+numpy
 
-# Firebase (Firestore Database)
-firebase-admin>=6.2.0
-
-# PromptLayer for RAG evaluation
-promptlayer==0.3.5
-
-# OpenAI for LLM/Vision API
-openai>=1.0.0
+# Google Gemini AI
+google-generativeai>=0.3.0
 
 # Utilities
 requests==2.31.0
 python-dotenv==1.0.0
-pydantic==2.5.3
+pydantic>=2.9.0
 pyyaml>=5.1
 jinja2>=3.1.0
 
@@ -35,3 +29,6 @@ flask>=3.0.0
 # Image processing
 imageio==2.33.1
 imageio-ffmpeg==0.4.9
+
+# PromptLayer for RAG evaluation (optional)
+# promptlayer==0.3.5
