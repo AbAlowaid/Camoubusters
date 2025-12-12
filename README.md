@@ -10,10 +10,11 @@ concealed soldiers and automatically generates contextual summaries to
 help users interpret each detection event quickly and accurately.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
-![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)
 ![Firebase](https://img.shields.io/badge/Firebase-Admin-orange.svg)
+![React](https://img.shields.io/badge/React-18-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
 
 ## Features
 
