@@ -16,6 +16,47 @@ help users interpret each detection event quickly and accurately.
 ![React](https://img.shields.io/badge/React-18-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
 
+---
+
+## 📚 Documentation Quick Links
+
+- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Quick 5-minute setup guide
+- **[SECURITY_SETUP.md](./SECURITY_SETUP.md)** - Complete security configuration
+- **[PRE_COMMIT_CHECKLIST.md](./PRE_COMMIT_CHECKLIST.md)** - Security checklist before pushing
+- **[BACKEND_API_DOCUMENTATION.md](./BACKEND_API_DOCUMENTATION.md)** - Complete API reference
+
+---
+
+## System Overview
+
+Camoubusters is built around three main components that work together to deliver comprehensive camouflage detection and analysis:
+
+### 1. Dashboard - Central Command Center
+The Dashboard acts as the command center for all system activity, providing:
+- **Real-time KPI Cards**: Detection counts, report statistics, and operational metrics
+- **Geographic Overview**: Location-based detection mapping and distribution
+- **AI-Generated Summaries**: Vision-Language Model summaries for each detection event
+- **Interactive Analytics**: Visual charts and trends analysis
+- **Advanced Filtering**: Filter by time range, severity, status, and device
+- **Team Management**: Assign detections and track team activity
+
+### 2. Analysis - Deep Investigation
+A dedicated page for detailed image analysis:
+- **Image Upload**: Upload images for comprehensive AI analysis
+- **Camouflage Detection**: Advanced computer vision identifies hidden or partially concealed soldiers
+- **Environmental Context**: Recognition of terrain, vegetation, and environmental conditions
+- **Weapon Detection**: Identification of weapons and equipment
+- **Personnel Estimation**: Accurate count of detected individuals
+- **PDF Reports**: Professional report generation with images and metadata
+
+### 3. Assistant - Intelligent RAG System
+Conversational AI-powered querying of detection data:
+- **Natural Language Queries**: Ask questions in plain language
+- **Instant Insights**: Retrieve statistics, summaries, and historical data
+- **Pattern Analysis**: Discover trends and anomalies in detection history
+- **Context-Aware Responses**: Intelligent answers based on your detection database
+- **Efficient Information Access**: No need to navigate multiple pages
+
 ## Features
 
 ### Detection & Analysis

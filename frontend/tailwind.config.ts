@@ -74,10 +74,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Cairo', 'sans-serif'],
+        sans: ['IBM Plex Sans Arabic', 'sans-serif'],
         tactical: ['Orbitron', 'monospace'],
         mono: ['JetBrains Mono', 'monospace'],
-        arabic: ['Cairo', 'sans-serif'],
+        arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

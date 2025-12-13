@@ -8,7 +8,8 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
-  Radar
+  Radar,
+  Globe
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -20,7 +21,7 @@ const navItems = [
 ] as const;
 
 export function Sidebar() {
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, lang, setLang } = useLanguage();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -29,6 +30,7 @@ export function Sidebar() {
         "h-full border-r border-border bg-card/50 backdrop-blur-sm transition-all duration-300 flex flex-col shrink-0",
         collapsed ? "w-16" : "w-56"
       )}
+      dir={isRTL ? "rtl" : "ltr"}
     >
       {/* Nav Items */}
       <nav className="flex-1 p-3 space-y-2">
@@ -40,7 +42,6 @@ export function Sidebar() {
               "flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200",
               "text-muted-foreground hover:text-foreground hover:bg-primary/20",
               "border border-transparent hover:border-military-glow/30",
-              isRTL && "flex-row-reverse",
               collapsed && "justify-center"
             )}
             activeClassName="bg-primary/30 text-foreground border-military-glow/50 glow-green"
@@ -66,6 +67,23 @@ export function Sidebar() {
           </div>
         </div>
       )}
+
+      {/* Language Toggle */}
+      <button
+        onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+        className={cn(
+          "p-3 border-t border-border flex items-center justify-center gap-2",
+          "text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
+        )}
+        title={lang === 'ar' ? 'English' : 'عربي'}
+      >
+        <Globe className="w-5 h-5" />
+        {!collapsed && (
+          <span className="text-sm font-medium">
+            {lang === 'ar' ? 'EN' : 'عربي'}
+          </span>
+        )}
+      </button>
 
       {/* Collapse Toggle */}
       <button

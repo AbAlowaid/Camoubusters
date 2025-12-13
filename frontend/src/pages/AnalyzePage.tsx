@@ -135,8 +135,8 @@ export function AnalyzePage() {
   return (
     <div className="p-6 space-y-6 hud-grid min-h-full">
       {/* Header */}
-      <div className={cn(isRTL && "text-right")}>
-        <h1 className="text-2xl font-tactical font-bold tracking-wider text-foreground">
+      <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+        <h1 className="text-2xl font-sans font-bold tracking-wider text-foreground">
           {t('analyze')}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -231,7 +231,7 @@ export function AnalyzePage() {
               className="border-border hover:border-military-glow hover:bg-primary/10"
             >
               <Shield className="w-4 h-4 mr-2" />
-              Quick Test
+              {t('quickTest')}
             </Button>
           </div>
         </div>

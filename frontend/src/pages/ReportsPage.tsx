@@ -124,9 +124,9 @@ export function ReportsPage() {
   return (
     <div className="p-6 space-y-6 hud-grid min-h-full">
       {/* Header */}
-      <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+      <div className="flex items-center justify-between" dir={isRTL ? "rtl" : "ltr"}>
         <div className={cn(isRTL && "text-right")}>
-          <h1 className="text-2xl font-tactical font-bold tracking-wider text-foreground flex items-center gap-2">
+          <h1 className={cn("text-2xl font-sans font-bold tracking-wider text-foreground flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <FileText className="w-6 h-6 text-military-glow" />
             {t('reports')}
           </h1>
@@ -135,7 +135,7 @@ export function ReportsPage() {
           </p>
         </div>
         
-        <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+        <div className="flex items-center gap-3">
           <Select value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
             <SelectTrigger className="w-40 bg-card border-border">
               <SelectValue />
@@ -361,6 +361,7 @@ export function ReportsPage() {
                     <img 
                       src={getStorageUrl(selectedReport.image_snapshot_url)} 
                       alt="Original" 
+                      crossOrigin="anonymous"
                       className="rounded-lg border border-border w-full"
                     />
                   </div>
@@ -371,6 +372,7 @@ export function ReportsPage() {
                     <img 
                       src={getStorageUrl(selectedReport.segmented_image_url)} 
                       alt="Segmented" 
+                      crossOrigin="anonymous"
                       className="rounded-lg border border-border w-full"
                     />
                   </div>
