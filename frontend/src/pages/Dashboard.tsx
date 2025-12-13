@@ -131,9 +131,9 @@ export function Dashboard() {
   return (
     <div className="p-6 space-y-6 hud-grid min-h-full">
       {/* Header */}
-      <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
-        <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-          <h1 className="text-2xl font-tactical font-bold tracking-wider text-foreground">
+      <div className="flex items-center justify-between" dir={isRTL ? "rtl" : "ltr"}>
+        <div className={cn(isRTL && "text-right")}>
+          <h1 className="text-2xl font-sans font-bold tracking-wider text-foreground">
             {t('dashboard')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -141,7 +141,7 @@ export function Dashboard() {
           </p>
         </div>
         
-        <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+        <div className="flex items-center gap-3">
           <Select value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
             <SelectTrigger className="w-40 bg-card border-border">
               <SelectValue />
@@ -264,7 +264,7 @@ export function Dashboard() {
 
       {/* Recent Detections */}
       <div className="space-y-4">
-        <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+        <div className="flex items-center justify-between" dir={isRTL ? "rtl" : "ltr"}>
           <h2 className={cn("text-lg font-semibold flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <Activity className="w-5 h-5 text-military-glow" />
             {t('recentDetections')}

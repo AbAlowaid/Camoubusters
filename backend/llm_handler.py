@@ -1,6 +1,6 @@
 """
-LLM Handler - Interface with Google Gemini 2.5 Flash API
-Uses Gemini for fast, accurate image analysis
+LLM Handler - Interface with OpenAI GPT-4 Vision API
+Uses GPT-4 Vision for fast, accurate image analysis
 """
 
 import base64
@@ -16,47 +16,46 @@ root_dir = Path(__file__).parent.parent
 env_path = root_dir / '.env'
 load_dotenv(dotenv_path=env_path)
 
-# Import Google Generative AI
+# Import OpenAI
 try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
 except ImportError:
-    GEMINI_AVAILABLE = False
-    print("⚠️ Google Generative AI not installed. Install with: pip install google-generativeai")
+    OPENAI_AVAILABLE = False
+    print("⚠️ OpenAI not installed. Install with: pip install openai")
 
 class LLMReportGenerator:
     def __init__(self, api_key: str = None):
         """
-        Initialize the LLM report generator with Google Gemini 2.5 Flash API
+        Initialize the LLM report generator with OpenAI GPT-4 Vision API
         
         Args:
-            api_key: Google API key (defaults to provided key or GEMINI_API_KEY env variable)
+            api_key: OpenAI API key (defaults to OPENAI_API_KEY env variable)
         """
-        if not GEMINI_AVAILABLE:
-            print("⚠️ Warning: Google Generative AI SDK not installed. Install with: pip install google-generativeai")
+        if not OPENAI_AVAILABLE:
+            print("⚠️ Warning: OpenAI SDK not installed. Install with: pip install openai")
             self.api_key = None
             self.model_name = None
-            self.model = None
+            self.client = None
             return
         
         # Use the provided API key
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or "AIzaSyCnAKAPl3f40biAtHfJ57NFywqa5NHZgN4"
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         
         if not self.api_key:
-            print("⚠️ Warning: No Gemini API key found.")
+            raise ValueError("OPENAI_API_KEY environment variable is required. Please set it in your .env file.")
         else:
-            print(f"✅ Gemini API key loaded successfully")
+            print(f"✅ OpenAI API key loaded successfully")
         
         if self.api_key:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            self.client = OpenAI(api_key=self.api_key)
         else:
-            self.model = None
-        self.model_name = "gemini-2.0-flash-exp"
+            self.client = None
+        self.model_name = "gpt-4-turbo"
     
     async def generate_report(self, image: Image.Image) -> dict:
         """
-        Generate AI analysis report for an image using Google Gemini 2.5 Flash
+        Generate AI analysis report for an image using OpenAI GPT-4 Vision
         
         Args:
             image: PIL Image object
@@ -73,11 +72,11 @@ class LLMReportGenerator:
             print("⚠️ No API key available, using fallback analysis")
             return self._get_fallback_analysis()
         
-        if not GEMINI_AVAILABLE:
-            print("⚠️ Gemini module not available, using fallback analysis")
+        if not OPENAI_AVAILABLE:
+            print("⚠️ OpenAI module not available, using fallback analysis")
             return self._get_fallback_analysis()
         
-        print(f"✅ Starting AI analysis with Google Gemini 2.5 Flash")
+        print(f"✅ Starting AI analysis with OpenAI GPT-4 Vision")
         print(f"   API Key available: {bool(self.api_key)}")
         print(f"   Model: {self.model_name}")
         
@@ -90,18 +89,42 @@ class LLMReportGenerator:
         # Construct the prompt
         prompt = self._create_analysis_prompt()
         
+        # Convert image to base64
+        buffered = io.BytesIO()
+        img_copy.save(buffered, format="PNG")
+        img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        
         try:
-            print(f"🤖 Requesting AI analysis from Gemini ({self.model_name})...")
+            print(f"🤖 Requesting AI analysis from OpenAI ({self.model_name})...")
             
-            # Create the content with image and text
-            full_prompt = f"You are a military intelligence analyst. Analyze this image and respond ONLY with valid JSON in this exact format:\n\n{prompt}"
-            
-            response = self.model.generate_content([full_prompt, img_copy])
+            # Create the OpenAI API call with vision
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a military intelligence analyst specializing in camouflage detection. Analyze images and respond ONLY with valid JSON."
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/png;base64,{img_base64}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens=1000
+            )
             
             print(f"📝 API Response received successfully")
             
             # Extract text from response
-            analysis_text = response.text
+            analysis_text = response.choices[0].message.content
             
             print(f"   Raw response: {analysis_text[:200]}...")
             
@@ -131,14 +154,14 @@ class LLMReportGenerator:
             return analysis
             
         except Exception as e:
-            print(f"❌ Error connecting to Gemini API: {type(e).__name__}: {str(e)}")
+            print(f"❌ Error connecting to OpenAI API: {type(e).__name__}: {str(e)}")
             print(f"   Full error: {repr(e)}")
             
             # Return fallback analysis
             return self._get_fallback_analysis()
     
     def _create_analysis_prompt(self) -> str:
-        """Create the structured prompt for Gemini API"""
+        """Create the structured prompt for OpenAI Vision API"""
         return """You are a military intelligence analyst specializing in camouflage detection. Analyze the provided image and return ONLY a valid JSON object with the following schema.
 
 CRITICAL: Only count soldiers wearing camouflage (woodland, desert, digital, ghillie suits, etc.). DO NOT count soldiers in regular military uniforms without camouflage patterns.
@@ -241,8 +264,8 @@ Analyze the image and respond with ONLY the JSON object, no additional text."""
         }
     
     def check_connection(self) -> bool:
-        """Check if the Gemini API is available and configured"""
-        if not GEMINI_AVAILABLE:
+        """Check if the OpenAI API is available and configured"""
+        if not OPENAI_AVAILABLE:
             return False
         if not self.api_key:
             return False

@@ -52,29 +52,16 @@ export function Header() {
               "w-2 h-2 rounded-full",
               isOnline ? "status-online" : "status-offline"
             )} />
-            <span className="text-xs font-mono text-muted-foreground">
-              {t('systemStatus')}: 
-            </span>
             <span className={cn(
               "text-xs font-mono font-semibold",
               isOnline ? "text-hud-green" : "text-tactical-red"
             )}>
               {isOnline ? t('online') : t('offline')}
             </span>
-          </div>
-
-          {/* Language Toggle */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-            className="gap-2 border-border hover:bg-primary/20 hover:border-military-glow"
-          >
-            <Globe className="w-4 h-4" />
-            <span className="font-mono text-sm">
-              {lang === 'ar' ? 'EN' : 'عربي'}
+            <span className="text-xs font-mono text-muted-foreground">
+              {t('systemStatus')}: 
             </span>
-          </Button>
+          </div>
         </div>
       </div>
     </header>

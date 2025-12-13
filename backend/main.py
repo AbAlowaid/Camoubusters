@@ -27,8 +27,8 @@ print(f".env exists: {env_path.exists()}")
 load_dotenv(dotenv_path=env_path)
 
 # Verify environment is loaded
-api_key = os.getenv('GEMINI_API_KEY')
-print(f"Gemini API Key loaded: {bool(api_key)}")
+api_key = os.getenv('OPENAI_API_KEY')
+print(f"OpenAI API Key loaded: {bool(api_key)}")
 
 from model_handler import SegmentationModel
 from llm_handler import LLMReportGenerator
@@ -38,7 +38,7 @@ from local_storage_handler import local_storage_handler
 from moraqib_rag import initialize_rag
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(title="Mirqab API")
+app = FastAPI(title="Camoubusters API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -55,19 +55,34 @@ llm = LLMReportGenerator()
 moraqib_rag = None
 
 # API Key for Raspberry Pi authentication
-MIRQAB_API_KEY = os.getenv("MIRQAB_API_KEY", "development-key-change-in-production")
+CAMOUBUSTERS_API_KEY = os.getenv("CAMOUBUSTERS_API_KEY", "development-key-change-in-production")
 
 # Mount storage directory for serving images
 backend_dir = Path(__file__).parent
 storage_dir = backend_dir / "storage"
 storage_dir.mkdir(exist_ok=True)  # Create storage directory if it doesn't exist
+
+# Custom middleware to add CORS headers to static files
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+class CORSStaticFilesMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/storage/"):
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+
+app.add_middleware(CORSStaticFilesMiddleware)
 app.mount("/storage", StaticFiles(directory=str(storage_dir)), name="storage")
 
 @app.on_event("startup")
 async def startup_event():
     global moraqib_rag
     
-    print("🚀 Starting Mirqab Backend...")
+    print("🚀 Starting Camoubusters Backend...")
     model.load_model()
     
     # Initialize Local Storage and Database
@@ -85,7 +100,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": model.is_loaded(),
-        "gemini_api_available": llm.check_connection()
+        "openai_api_available": llm.check_connection()
     }
 
 @app.post("/api/analyze_media")
@@ -362,6 +377,67 @@ async def get_detection_reports(
             "detections": []
         }
 
+@app.get("/api/detection-report/{report_id}")
+async def get_detection_report(report_id: str):
+    """
+    Get a single detection report by ID
+    """
+    try:
+        if not local_database_handler._initialized:
+            return {
+                "success": False,
+                "error": "Local Database not initialized"
+            }
+        
+        print(f"📄 Fetching detection report: {report_id}")
+        
+        # Get report from Local Database
+        report = local_database_handler.get_report(report_id)
+        
+        if not report:
+            return {
+                "success": False,
+                "error": f"Report {report_id} not found"
+            }
+        
+        # Transform report to match frontend interface
+        location = report.get("location", {})
+        detection = {
+            "report_id": report.get("report_id", ""),
+            "timestamp": report.get("timestamp", ""),
+            "location": {
+                "latitude": location.get("latitude", 0),
+                "longitude": location.get("longitude", 0)
+            },
+            "soldier_count": report.get("soldier_count", 0),
+            "attire_and_camouflage": report.get("attire_and_camouflage", "Unknown"),
+            "environment": report.get("environment", "Unknown"),
+            "equipment": report.get("equipment", "Unknown"),
+            "image_snapshot_url": report.get("image_snapshot_url", ""),
+            "source_device_id": report.get("source_device_id", ""),
+            "segmented_image_url": report.get("segmented_image_url", ""),
+            # Additional SOC fields
+            "severity": "High" if report.get("soldier_count", 0) >= 3 else "Medium" if report.get("soldier_count", 0) >= 2 else "Low",
+            "status": "New",
+            "assignee": "Unassigned"
+        }
+        
+        print(f"✅ Retrieved detection report {report_id}")
+        
+        return {
+            "success": True,
+            "report": detection
+        }
+        
+    except Exception as e:
+        print(f"❌ Error fetching detection report: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 @app.get("/api/detection-stats")
 async def get_detection_stats(time_range: str = "24h"):
     """
@@ -482,7 +558,7 @@ async def report_detection(data: dict):
         
         # Verify API key
         api_key = data.get("api_key", "")
-        if api_key != MIRQAB_API_KEY:
+        if api_key != CAMOUBUSTERS_API_KEY:
             print("❌ Invalid API key")
             return {
                 "success": False,
@@ -665,7 +741,7 @@ async def moraqib_query(query: str = Form(...)):
     This endpoint implements Retrieval-Augmented Generation (RAG):
     1. Retrieves relevant detection reports from Local Database
     2. Augments context with report data
-    3. Generates natural language answer using Google Gemini 2.5 Flash
+    3. Generates natural language answer using OpenAI GPT-4
     
     Strict Guardrails:
     - Only answers questions based on detection reports

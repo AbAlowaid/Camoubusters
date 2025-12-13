@@ -13,13 +13,13 @@ import re
 # Load environment variables
 load_dotenv()
 
-# Import Google Generative AI
+# Import OpenAI
 try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
 except ImportError:
-    GEMINI_AVAILABLE = False
-    print("⚠️ Google Generative AI not installed. Install with: pip install google-generativeai")
+    OPENAI_AVAILABLE = False
+    print("⚠️ OpenAI not installed. Install with: pip install openai")
 
 
 class MoraqibRAG:
@@ -40,18 +40,17 @@ class MoraqibRAG:
             database_handler: Instance of LocalDatabaseHandler for database access
         """
         self.database = database_handler
-        self.api_key = os.getenv("GEMINI_API_KEY") or "AIzaSyCnAKAPl3f40biAtHfJ57NFywqa5NHZgN4"
+        self.api_key = os.getenv("OPENAI_API_KEY")
         
         if not self.api_key:
-            print("⚠️ Warning: GEMINI_API_KEY not found in environment")
-            self.model = None
-        elif not GEMINI_AVAILABLE:
-            print("⚠️ Warning: Google Generative AI not available")
-            self.model = None
+            raise ValueError("OPENAI_API_KEY environment variable is required. Please set it in your .env file.")
+            self.client = None
+        elif not OPENAI_AVAILABLE:
+            print("⚠️ Warning: OpenAI not available")
+            self.client = None
         else:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-flash-exp')
-            print("✅ Moraqib RAG initialized with Gemini 2.5 Flash Exp")
+            self.client = OpenAI(api_key=self.api_key)
+            print("✅ Moraqib RAG initialized with OpenAI GPT-4")
     
     async def query(self, user_query: str) -> Dict:
         """
@@ -394,7 +393,7 @@ class MoraqibRAG:
         Returns:
             Natural language answer
         """
-        if not self.model:
+        if not self.client:
             return self._generate_fallback_answer(query, reports, intent, temporal_context)
         
         # Handle empty results
@@ -440,6 +439,7 @@ Guidelines:
 - Be concise but informative
 - Use markdown formatting for better readability
 - Present statistics clearly
+- Respond in the language of the user's query which is after the "Question:"
 - Group related information together"""
 
         # Create user prompt with context
@@ -472,15 +472,22 @@ Please answer the question based on the detection reports above. Be specific and
 
         try:
             # Call OpenAI API
-            full_prompt = f"{system_prompt}\n\n{user_prompt}"
-            response = self.model.generate_content(full_prompt)
-            answer = response.text
+            response = self.client.chat.completions.create(
+                model="gpt-4-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.7,
+                max_tokens=1500
+            )
+            answer = response.choices[0].message.content
             print(f"✅ Generated answer ({len(answer)} chars)")
             
             return answer
         
         except Exception as e:
-            print(f"❌ Error generating answer with Gemini: {e}")
+            print(f"❌ Error generating answer with OpenAI: {e}")
             return self._generate_fallback_answer(query, reports, intent, temporal_context)
     
     def _prepare_ordinal_context(self, report: Dict, position: int) -> str:

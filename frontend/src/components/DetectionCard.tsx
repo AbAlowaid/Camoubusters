@@ -39,12 +39,13 @@ export function DetectionCard({ report, onClick }: DetectionCardProps) {
         "transition-all duration-300 hover:bg-card/80 hover:border-military-glow/50 hover:shadow-glow",
         "group"
       )}
+      dir={isRTL ? "rtl" : "ltr"}
     >
       <div className={cn("flex items-start justify-between mb-3", isRTL && "flex-row-reverse")}>
         <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
           <span className="font-mono text-sm text-military-glow">#{report.report_id}</span>
-          <Badge variant="outline" className={cn("text-xs border", severity.color)}>
-            <SeverityIcon className="w-3 h-3 mr-1" />
+          <Badge variant="outline" className={cn("text-xs border flex items-center gap-1", severity.color)}>
+            <SeverityIcon className={cn("w-3 h-3", isRTL ? "ml-1" : "mr-1")} />
             {severity.label}
           </Badge>
         </div>
@@ -69,21 +70,21 @@ export function DetectionCard({ report, onClick }: DetectionCardProps) {
         </div>
 
         {report.environment && (
-          <div className="text-xs">
+          <div className={cn("text-xs", isRTL && "text-right")}>
             <span className="text-muted-foreground">{t('environment')}: </span>
             <span className="text-foreground">{report.environment}</span>
           </div>
         )}
 
         {report.attire_and_camouflage && (
-          <div className="text-xs">
+          <div className={cn("text-xs", isRTL && "text-right")}>
             <span className="text-muted-foreground">{t('camouflage')}: </span>
             <span className="text-foreground line-clamp-1">{report.attire_and_camouflage}</span>
           </div>
         )}
 
         {report.equipment && (
-          <div className="text-xs">
+          <div className={cn("text-xs", isRTL && "text-right")}>
             <span className="text-muted-foreground">{t('equipment')}: </span>
             <span className="text-foreground line-clamp-1">{report.equipment}</span>
           </div>
