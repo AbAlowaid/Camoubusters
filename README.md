@@ -18,15 +18,6 @@ help users interpret each detection event quickly and accurately.
 
 ---
 
-## 📚 Documentation Quick Links
-
-- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Quick 5-minute setup guide
-- **[SECURITY_SETUP.md](./SECURITY_SETUP.md)** - Complete security configuration
-- **[PRE_COMMIT_CHECKLIST.md](./PRE_COMMIT_CHECKLIST.md)** - Security checklist before pushing
-- **[BACKEND_API_DOCUMENTATION.md](./BACKEND_API_DOCUMENTATION.md)** - Complete API reference
-
----
-
 ## System Overview
 
 Camoubusters is built around three main components that work together to deliver comprehensive camouflage detection and analysis:
